@@ -33,21 +33,46 @@ class network:
             self.activations[i+1] = active
 
 
-    def error(self, RValue:list):
+    def backpropgation(self, RValue:list):
         if (len(RValue) != self.NetworkShape[-1]): raise ValueError("Worng Counts of 'RValue' (=RValue)")
 
-        errors = [(RValue[i]-self.activations[-1][i])**2/2 for i in range(self.NetworkShape[-1])]
+        errors = [[(self.activations[-1][i]-RValue[i])**2/2 for i in range(self.NetworkShape[-1])]]
+        new_weights = []
+        ReversedActiv = list(reversed(self.activations))
+
+        for l, neuron in enumerate(reversed(self.weights)):
+            w = []
+            error = []
+            for i, weights in enumerate(neuron):
+                w.append((weights*errors[l][i]*self.l_rate)+weights)
+                error.append((numpy.array(ReversedActiv[l+1])-numpy.array(ReversedActiv[l+1])*errors[l][i])**2/2)
+            error = RotateWeight(error)
+            errors.append(numpy.sum(error,axis=1)/len(error[0]))
+
+            new_weights.append(numpy.array(w))
+
+        new_weights = list(reversed(new_weights))
+        '''print("="*30)
+        print(self.weights)
+        print(new_weights)'''
+
+        self.weights = new_weights
+
+
+
+        
         return errors
+count = 10000
 
-    def backpropgation(self, error):
-        if (len(error) != self.NetworkShape[-1]): raise ValueError("Worng Counts of 'error'")
+net = network(0.6,[1,2,1])
 
+import random
 
-        for i, weight in enumerate(reversed(self.weights)):
-            print(weight)
+for i in range(count):
+    a = random.randint(0,100)/100
+    net.forward([a])
+    net.backpropgation([a*3.14])
 
-
-
-net = network(0.6,[10,5,3,2])
-net.forward([1,2,3,4,5,6,7,8,9,10])
-print(net.error([1,0]))
+net.forward([0.3])
+print(net.weights)
+print(net.activations)
