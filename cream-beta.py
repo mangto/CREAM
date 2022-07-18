@@ -47,12 +47,11 @@ class network:
         errors = [RValue - self.activations[-1]]
 
         for i, weight in enumerate(reversed(self.weights)):
-            print(errors[i])
-            print(weight)
-            new = weight*errors[i]
+            new_error = numpy.sum(RotateWeight(weight)*errors[i],axis=1)
+            errors.append(new_error)
 
-            print(new)
-            print(numpy.sum(new,axis=1))
+        print(cost)
+        print(errors)
 
 count = 1
 
