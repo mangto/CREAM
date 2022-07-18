@@ -6,6 +6,14 @@ def sigmoid(value):
 def RotateWeight(weights:numpy.array):
     return numpy.flip(numpy.rot90(weights,k=-1),1)
 
+def CostFunction(output:list, real:list):
+    out = numpy.array(output)
+    real = numpy.array(real)
+
+    cost = numpy.sum((out-real)**2)
+
+    return cost
+
 class network:
     def __init__(self, LearningRate:float, NetworkShape:list):
         self.NetworkShape = NetworkShape
@@ -27,16 +35,20 @@ class network:
             weights = self.weights[i]
             rotated_weights = RotateWeight(weights)
 
-            active = RotateWeight([a*rotated_weights[j] for j, a in enumerate(act)])
-            active = [sigmoid(numpy.sum(a)) for a in active]
+            active = (sigmoid(numpy.sum(numpy.array([list(a*rotated_weights[j]) for j, a in enumerate(act)]),axis=0)))
 
             self.activations[i+1] = active
 
 
     def backpropgation(self, RValue:list):
         if (len(RValue) != self.NetworkShape[-1]): raise ValueError("Worng Counts of 'RValue' (=RValue)")
+        
+        cost = CostFunction(self.activations[-1],RValue)
 
-        errors = [[(self.activations[-1][i]-RValue[i])**2/2 for i in range(self.NetworkShape[-1])]]
+        print(cost)
+
+
+        """errors = [[(self.activations[-1][i]-RValue[i])**2/2 for i in range(self.NetworkShape[-1])]]
         new_weights = []
         ReversedActiv = list(reversed(self.activations))
 
@@ -61,18 +73,16 @@ class network:
 
 
         
-        return errors
-count = 10000
+        return errors"""
+count = 1
 
-net = network(0.6,[1,2,1])
+net = network(0.6,[729,16,16,10])
 
 import random
 
 for i in range(count):
-    a = random.randint(0,100)/100
-    net.forward([a])
-    net.backpropgation([a*3.14])
+    a = sigmoid(numpy.random.randn(729))
+    net.forward(a)
+    net.backpropgation([1,0,0,0,0,0,0,0,0,0])
 
-net.forward([0.3])
-print(net.weights)
-print(net.activations)
+open('.\\dat','w').write(str(net.activations))
