@@ -44,36 +44,16 @@ class network:
         if (len(RValue) != self.NetworkShape[-1]): raise ValueError("Worng Counts of 'RValue' (=RValue)")
         
         cost = CostFunction(self.activations[-1],RValue)
+        errors = [RValue - self.activations[-1]]
 
-        print(cost)
+        for i, weight in enumerate(reversed(self.weights)):
+            print(errors[i])
+            print(weight)
+            new = weight*errors[i]
 
+            print(new)
+            print(numpy.sum(new,axis=1))
 
-        """errors = [[(self.activations[-1][i]-RValue[i])**2/2 for i in range(self.NetworkShape[-1])]]
-        new_weights = []
-        ReversedActiv = list(reversed(self.activations))
-
-        for l, neuron in enumerate(reversed(self.weights)):
-            w = []
-            error = []
-            for i, weights in enumerate(neuron):
-                w.append((weights*errors[l][i]*self.l_rate)+weights)
-                error.append((numpy.array(ReversedActiv[l+1])-numpy.array(ReversedActiv[l+1])*errors[l][i])**2/2)
-            error = RotateWeight(error)
-            errors.append(numpy.sum(error,axis=1)/len(error[0]))
-
-            new_weights.append(numpy.array(w))
-
-        new_weights = list(reversed(new_weights))
-        '''print("="*30)
-        print(self.weights)
-        print(new_weights)'''
-
-        self.weights = new_weights
-
-
-
-        
-        return errors"""
 count = 1
 
 net = network(0.6,[729,16,16,10])
