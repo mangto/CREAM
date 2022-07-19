@@ -47,7 +47,6 @@ class network:
         for weight in reversed(self.weights):
             pass
         
-
 count = 1
 
 net = network(0.6,[2,3,2])
