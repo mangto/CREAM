@@ -6,18 +6,18 @@ def sigmoid(value):
 def RotateWeight(weights:numpy.array):
     return numpy.flip(numpy.rot90(weights,k=-1),1)
 
-def CostFunction(output:list, real:list):
+def CostFunctionDerivative(output:list, real:list):
     out = numpy.array(output)
     real = numpy.array(real)
 
-    cost = numpy.sum((out-real)**2)
+    cost = -2*(out-real)
 
     return cost
 
 class network:
     def __init__(self, LearningRate:float, NetworkShape:list):
         self.NetworkShape = NetworkShape
-        self.weights = [numpy.array([list(numpy.random.randn(i)) for j in range(NetworkShape[k+1])]) for k, i in enumerate(NetworkShape[0:-1])]
+        self.weights = [RotateWeight(numpy.array([list(numpy.random.randn(i)) for j in range(NetworkShape[k+1])])) for k, i in enumerate(NetworkShape[0:-1])]
         self.activations = self.reset_activation()
 
         self.l_rate = LearningRate
@@ -33,9 +33,8 @@ class network:
         for i in range(len(self.activations[0:-1])):
             act = self.activations[i]
             weights = self.weights[i]
-            rotated_weights = RotateWeight(weights)
-
-            active = (sigmoid(numpy.sum(numpy.array([list(a*rotated_weights[j]) for j, a in enumerate(act)]),axis=0)))
+            
+            active = sigmoid(numpy.sum(RotateWeight(weights)*act,axis=1))
 
             self.activations[i+1] = active
 
@@ -43,25 +42,19 @@ class network:
     def backpropgation(self, RValue:list):
         if (len(RValue) != self.NetworkShape[-1]): raise ValueError("Worng Counts of 'RValue' (=RValue)")
         
-        cost = CostFunction(self.activations[-1],RValue)
-        errors = [RValue - self.activations[-1]]
+        cost = CostFunctionDerivative(self.activations[-1],RValue)
 
-        for i, weight in enumerate(reversed(self.weights)):
-            new_error = numpy.sum(RotateWeight(weight)*errors[i],axis=1)
-            errors.append(new_error)
-
-        print(cost)
-        print(errors)
+        for weight in reversed(self.weights):
+            pass
+        
 
 count = 1
 
-net = network(0.6,[729,16,16,10])
+net = network(0.6,[2,3,2])
 
 import random
 
 for i in range(count):
-    a = sigmoid(numpy.random.randn(729))
+    a = [1,0]
     net.forward(a)
-    net.backpropgation([1,0,0,0,0,0,0,0,0,0])
-
-open('.\\dat','w').write(str(net.activations))
+    print(net.activations)
