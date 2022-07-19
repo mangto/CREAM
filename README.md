@@ -10,5 +10,6 @@ OK, Let me explain you.
 
 if w1 is weight of 1a0, we can get derivative of Cost-Function with w1
 (0a0 = 0th activation of 0th layer)
-
+'''
   $\frac{∂C}{∂w1} = 0a0*(-2(target0-out0) * ([weight of 1a0] * [weight of 2a(0 to N) towards 3a0]) -2(targetN-outN) * ([weight of 1a0] * [weight of 2a(0 to N) towards 3aN])$
+'''
