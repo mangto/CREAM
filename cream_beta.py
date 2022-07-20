@@ -6,13 +6,23 @@ def sigmoid(value):
 def RotateWeight(weights:numpy.array):
     return numpy.flip(numpy.rot90(weights,k=-1),1)
 
+def MultiplyAll(a, b):
+    return RotateWeight(numpy.tile(a,(len(b),1)))*b
+
 def CostFunctionDerivative(output:list, real:list):
     out = numpy.array(output)
     real = numpy.array(real)
 
-    cost = -2*(out-real)
+    cost = 2*(out-real)
 
     return cost
+
+def NeuronCounts(shape:list):
+    out = 0
+    for i in range(len(shape)-1):
+        out += shape[i]*shape[i+1]
+
+    return out
 
 class network:
     def __init__(self, LearningRate:float, NetworkShape:list):
@@ -21,9 +31,25 @@ class network:
         self.activations = self.reset_activation()
 
         self.l_rate = LearningRate
+        self.NueronCount = NeuronCounts(NetworkShape)
 
     def reset_activation(self):
         self.activations = [ [0 for i in range(hn)] for hn in self.NetworkShape]
+
+    def PartialDerivative(self,weights:list):
+        weights = list(reversed(weights))
+        OutCount = self.NetworkShape[-1]
+        result = [] #assume cost is 1 -> multiply later
+        dummy = []
+
+        for weight in weights[1:-1]:
+            print(RotateWeight(weight))
+
+        print("="*30)
+
+        result = weights[-1]*1
+
+        return result
 
     def forward(self,inputs:list):
         if (len(inputs) != self.NetworkShape[0]): raise ValueError("Wrong input counts")
@@ -44,16 +70,20 @@ class network:
         
         cost = CostFunctionDerivative(self.activations[-1],RValue)
 
-        for weight in reversed(self.weights):
-            pass
+        for l, layer in enumerate(self.weights[0:-1]):
+            for n, neuron in enumerate(layer):
+                for w, weight in enumerate(neuron):
+
+                    active = self.activations[l][n]
+                    weights = [self.weights[l+1][w]] + list(self.weights[l+2:])
+
+                    dw = active*(cost*self.PartialDerivative(weights))
         
 count = 1
 
-net = network(0.6,[2,3,2])
-
-import random
+net = network(0.6,[2,3,3,3,2])
 
 for i in range(count):
     a = [1,0]
     net.forward(a)
-    print(net.activations)
+    net.backpropgation([0,1])
