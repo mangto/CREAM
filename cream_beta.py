@@ -6,8 +6,9 @@ def sigmoid(value):
 def RotateWeight(weights:numpy.array):
     return numpy.flip(numpy.rot90(weights,k=-1),1)
 
-def MultiplyAll(a, b):
-    return RotateWeight(numpy.tile(a,(len(b),1)))*b
+def MultiplyEach(a:numpy.array,b:numpy.array):
+    if (len(a) != len(b)): raise ValueError("Different inputs")
+    return [a[i]*b[i] for i in range(len(a))]
 
 def CostFunctionDerivative(output:list, real:list):
     out = numpy.array(output)
@@ -37,20 +38,30 @@ class network:
         self.activations = [ [0 for i in range(hn)] for hn in self.NetworkShape]
 
     def PartialDerivative(self,weights:list):
-        weights = list(reversed(weights))
-        OutCount = self.NetworkShape[-1]
-        result = [] #assume cost is 1 -> multiply later
-        dummy = []
+        if (len(weights)>1):
+            result = MultiplyEach(weights[0],weights[1]) #assume cost is 1 -> multiply later
+            
+            if (len(weights) > 2):
+                c = numpy.zeros(len(weights[-1]))
+                
 
-        for weight in weights[1:-1]:
-            rotated = RotateWeight(weight)
-            print(f'#rotated weight\n{rotated}')
+                reverse = reversed(weights[2:])
+                for i, weight in enumerate(reverse):
+                    if ((i) == 0):
+                        c += numpy.sum(weight,axis=1)
+                    else:
+                        c = RotateWeight(MultiplyEach(RotateWeight(weight),c))
 
-        print("="*30)
+                print(c)
+                c = numpy.sum(c,axis=1)
 
-        result = weights[-1]*1
 
-        return result
+                result = MultiplyEach(result,c)
+            print(result)
+
+            return result
+        
+        return 0
 
     def forward(self,inputs:list):
         if (len(inputs) != self.NetworkShape[0]): raise ValueError("Wrong input counts")
@@ -71,20 +82,25 @@ class network:
         
         cost = CostFunctionDerivative(self.activations[-1],RValue)
 
-        for l, layer in enumerate(self.weights[0:-1]):
+        for l, layer in enumerate(self.weights[0:-2]):
             for n, neuron in enumerate(layer):
                 for w, weight in enumerate(neuron):
 
                     active = self.activations[l][n]
+
+                    print(l, n, w)
+
                     weights = [self.weights[l+1][w]] + list(self.weights[l+2:])
 
-                    dw = active*(cost*self.PartialDerivative(weights))
+                    dw = self.PartialDerivative(weights)
         
 count = 1
 
-net = network(0.6,[2,3,3,2,2,2,2])
+net = network(0.6,[2,3,3,3,2,2])
+print(net.weights)
+print("="*40)
 
 for i in range(count):
     a = [1,0]
     net.forward(a)
-    net.backpropgation([0,1])
+    #net.backpropgation([0,1])
