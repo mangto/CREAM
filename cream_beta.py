@@ -7,14 +7,26 @@ def RotateWeight(weights:numpy.array):
     return numpy.flip(numpy.rot90(weights,k=-1),1)
 
 def MultiplyEach(a:numpy.array,b:numpy.array):
-    if (len(a) != len(b)): raise ValueError("Different inputs")
-    return [a[i]*b[i] for i in range(len(a))]
+    if (len(a) != len(b)): raise ValueError(f"Different inputs {len(a)}, {len(b)}")
+    return numpy.array([list(a[i]*b[i]) for i in range(len(a))])
+
+def Multiply(a:numpy.array,b:numpy.array):
+    if (len(a[0]) != len(b)): raise ValueError(f"Different inputs ({len(a[0])}*{len(a)}), {len(b)}")
+    return numpy.array([list(a[i]*b) for i in range(len(a))])
 
 def CostFunctionDerivative(output:list, real:list):
     out = numpy.array(output)
     real = numpy.array(real)
 
     cost = 2*(out-real)
+
+    return cost
+
+def CostFunction(output:list, real:list):
+    out = numpy.array(output)
+    real = numpy.array(real)
+
+    cost = (out-real)**2
 
     return cost
 
@@ -37,31 +49,31 @@ class network:
     def reset_activation(self):
         self.activations = [ [0 for i in range(hn)] for hn in self.NetworkShape]
 
-    def PartialDerivative(self,weights:list):
+    def PartialDerivative(self,weights:list, costs, SelfActivation):
+        output = 1
         if (len(weights)>1):
-            result = MultiplyEach(weights[0],weights[1]) #assume cost is 1 -> multiply later
+            result = weights[0] #assume cost is 1 -> multiply later
             
-            if (len(weights) > 2):
-                c = numpy.zeros(len(weights[-1]))
+            if (len(weights) > 2):               
                 
+                reverse = list(reversed(weights[1:-1]))
+                last = RotateWeight(weights[-1])
+                out = []
 
-                reverse = reversed(weights[2:])
-                for i, weight in enumerate(reverse):
-                    if ((i) == 0):
-                        c += numpy.sum(weight,axis=1)
-                    else:
-                        c = RotateWeight(MultiplyEach(RotateWeight(weight),c))
+                for i in range(self.NetworkShape[-1]):
+                    c = last[i]
+                    
 
-                print(c)
-                c = numpy.sum(c,axis=1)
+                    for weight in reverse:
+                        c = numpy.sum(Multiply(weight, c),axis=1)
 
+                    out.append(c)
+                result = [numpy.sum(result*o,axis=0) for o in out]
 
-                result = MultiplyEach(result,c)
-            print(result)
-
-            return result
+            result = numpy.sum(result*costs)
         
-        return 0
+        output = SelfActivation*result
+        return output
 
     def forward(self,inputs:list):
         if (len(inputs) != self.NetworkShape[0]): raise ValueError("Wrong input counts")
@@ -77,9 +89,12 @@ class network:
             self.activations[i+1] = active
 
 
+
     def backpropgation(self, RValue:list):
         if (len(RValue) != self.NetworkShape[-1]): raise ValueError("Worng Counts of 'RValue' (=RValue)")
         
+        print(numpy.sum(CostFunction(self.activations[-1],RValue)))
+
         cost = CostFunctionDerivative(self.activations[-1],RValue)
 
         for l, layer in enumerate(self.weights[0:-2]):
@@ -88,19 +103,22 @@ class network:
 
                     active = self.activations[l][n]
 
-                    print(l, n, w)
-
                     weights = [self.weights[l+1][w]] + list(self.weights[l+2:])
 
-                    dw = self.PartialDerivative(weights)
-        
-count = 1
+                    dw = self.PartialDerivative(weights, cost, active)
 
-net = network(0.6,[2,3,3,3,2,2])
-print(net.weights)
-print("="*40)
+                    self.weights[l][n][w] = self.weights[l][n][w] - self.weights[l][n][w]*dw*self.l_rate
+
+import random
+
+count = 10000
+
+net = network(0.3,[1,1,1])
 
 for i in range(count):
-    a = [1,0]
-    net.forward(a)
-    #net.backpropgation([0,1])
+    a = random.random()
+    net.forward([a])
+    net.backpropgation([a*0.3])
+
+net.forward([1,0])
+print(net.activations)
