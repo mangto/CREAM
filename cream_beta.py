@@ -43,7 +43,8 @@ class network:
         dummy = []
 
         for weight in weights[1:-1]:
-            print(RotateWeight(weight))
+            rotated = RotateWeight(weight)
+            print(f'#rotated weight\n{rotated}')
 
         print("="*30)
 
@@ -81,7 +82,7 @@ class network:
         
 count = 1
 
-net = network(0.6,[2,3,3,3,2])
+net = network(0.6,[2,3,3,2,2,2,2])
 
 for i in range(count):
     a = [1,0]
