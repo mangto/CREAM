@@ -1,5 +1,8 @@
 import numpy
 
+import os
+os.system("cls")
+
 def sigmoid(value):
     return 1/(1+numpy.exp(-1*value))
 
@@ -38,46 +41,16 @@ def NeuronCounts(shape:list):
     return out
 
 class network:
-    def __init__(self, LearningRate:float, NetworkShape:list, round=6):
+    def __init__(self, LearningRate:float, NetworkShape:list):
         self.NetworkShape = NetworkShape
         self.weights = [RotateWeight(numpy.array([list(numpy.random.randn(i)) for j in range(NetworkShape[k+1])])) for k, i in enumerate(NetworkShape[0:-1])]
         self.activations = self.reset_activation()
 
         self.l_rate = LearningRate
         self.NueronCount = NeuronCounts(NetworkShape)
-        self.round = round
 
     def reset_activation(self):
         self.activations = [ [0 for i in range(hn)] for hn in self.NetworkShape]
-
-    def PartialDerivative(self,weights:list, costs, SelfActivation):
-        output = 1
-        if (len(weights)>=1):
-            result = weights[0] #assume cost is 1 -> multiply later
-            
-            if (len(weights) >= 2):               
-                
-                reverse = list(reversed(weights[1:-1]))
-                last = RotateWeight(weights[-1])
-                out = []
-
-                for i in range(self.NetworkShape[-1]):
-                    c = last[i]
-                    
-
-                    for weight in reverse:
-                        c = numpy.sum(Multiply(weight, c),axis=1)
-
-                    out.append(c)
-                result = [numpy.sum(result*o,axis=0) for o in out]
-                print(result)
-
-            result = numpy.sum(result*costs)
-        
-        print(SelfActivation)
-        output = SelfActivation*result
-        print(output)
-        return output
 
     def forward(self,inputs:list):
         if (len(inputs) != self.NetworkShape[0]): raise ValueError("Wrong input counts")
@@ -92,34 +65,51 @@ class network:
 
             self.activations[i+1] = active
 
+    def PartialDerivative(self,weights:list, costs, SelfActivation):
+        result = 1 #assume cost is 1 -> multiply later
+            
+        if (len(weights) > 1):               
+            result = weights[0]
+            reverse = list(reversed(weights[1:-1]))
+            last = RotateWeight(weights[-1])
+            out = []
 
+            for i in range(self.NetworkShape[-1]):
+                c = last[i]
+                    
+
+                for weight in reverse:
+                    c = numpy.sum(Multiply(weight, c),axis=1)
+
+                out.append(c)
+            result = numpy.sum([numpy.sum(result*o,axis=0) for o in out]*costs)
+        output = SelfActivation*result
+        return output
 
     def backpropgation(self, RValue:list):
         if (len(RValue) != self.NetworkShape[-1]): raise ValueError("Worng Counts of 'RValue' (=RValue)")
 
         cost = CostFunctionDerivative(self.activations[-1],RValue)
 
-        for l, layer in enumerate(self.weights[0:-1]):
+        for l, layer in enumerate(self.weights):
             for n, neuron in enumerate(layer):
                 for w, weight in enumerate(neuron):
                     active = self.activations[l][n]
 
-                    print(l,n,w)
-
+                    
                     weights = [self.weights[l+1][w]] + list(self.weights[l+2:])
-                    print(f"cost: {cost}")
                     dw = self.PartialDerivative(weights, cost, active)
-
-                    self.weights[l][n][w] = round(self.weights[l][n][w] - self.weights[l][n][w]*dw*self.l_rate, self.round)
+                    self.weights[l][n][w] = self.weights[l][n][w] - self.weights[l][n][w]*dw*self.l_rate
 
 import random
 
-count = 1
+count = 100
 
 net = network(0.3,[3,4,4,1])
 
 net.forward([1,1,1])
 print(numpy.sum(CostFunction(net.activations[-1],[0.3])))
+print(net.weights)
 
 for i in range(count):
     a = numpy.array([random.random() for i in range(3)])
