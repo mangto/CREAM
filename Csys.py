@@ -20,6 +20,7 @@ def stop(message:str=""):
 
 def clear():
     os.system("cls")
+    
 def out(message, color, bold:bool=False,underline:bool=False):
     special = ''
     if (bold == True): special += bcolors.BOLD
