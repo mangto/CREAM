@@ -3,10 +3,10 @@ import numpy, random
 import Csys # -> for system control
 from activation_functions import * # -> activation functions
 
-#
 
-def CostFunction(output, target):
-    return (numpy.array(output)-numpy.array(target))**2/2
+def CostFunction(output, target, dervative:bool=False):
+    if (dervative == False): return (numpy.array(output)-numpy.array(target))**2/2
+    else: return numpy.array(output)-numpy.array(target)
 
 def Multiply(a:numpy.array,b:numpy.array): # Multiply([[1, 2], [3, 4]], [1,2]) -> [[1, 4], [3, 8]]
     if (len(a[0]) != len(b)): raise ValueError(f"Different inputs ({len(a[0])}*{len(a)}), {len(b)}")
@@ -64,5 +64,8 @@ class Network:
             new_activation = [self.function(a) for a in new_activation]
             self.activations[l+1] = new_activation
 
+    def PartialDerivative(self,weights:list, costs, SelfActivation):
+        return 0
+
     def backprogpation(self, RValue):
-        pass
+        return 0
