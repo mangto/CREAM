@@ -1,19 +1,7 @@
 import numpy, random
 
 import Csys # -> for system control
-
-# Functions
-def sigmoid(value):
-    return 1/(1+numpy.exp(-1*value))
-
-def ReLU(value, threshold=0):
-    return max(threshold, value)
-
-def Leaky_ReLU(value):
-    return max(0.01*value, value)
-
-def EReLU(value):
-    return max(0.01*sigmoid(value), value)
+from activation_functions import * # -> activation functions
 
 #
 
@@ -75,3 +63,6 @@ class Network:
             new_activation = numpy.sum(Multiply(neurons, activation), axis=0)+self.biases[l]
             new_activation = [self.function(a) for a in new_activation]
             self.activations[l+1] = new_activation
+
+    def backprogpation(self, RValue):
+        pass
