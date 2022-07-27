@@ -11,6 +11,10 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+def division(length:int):
+    if (length < 4): raise ValueError("Don't you think that's too short?")
+    return "+"+"-"*(length-2)+"+"
+
 def stop(message:str=""):
     if (message == ""):
         os.system("pause")
