@@ -79,7 +79,7 @@ class Network:
     def PartialDerivative(self,weights:list, costs, l, n, w):
         result = costs*self.activations[l][n]*[self.function(a,Derivative=True) for a in self.activations[-1]]
 
-        return 0
+        return sum(result)
 
     def backpropgation(self, DerivativeCost, active:list):
         if (len(DerivativeCost) != self.NetworkShape[-1]): raise ValueError("Wrong input counts")
@@ -87,9 +87,8 @@ class Network:
         for l, layer in enumerate(self.weights):
             for n, neuron in enumerate(layer):
                 for w, weight in enumerate(neuron):
-                    activation = active[l][n]
 
-                    print(Csys.division(30))
+                    print(Csys.division(50))
                     print(l, n, w)
 
                     weights = []
@@ -100,3 +99,4 @@ class Network:
                         weights = [self.weights[l+1][w]]
 
                     dw = self.PartialDerivative(weights, DerivativeCost, l, n, w)
+                    self.weights[l][n][w] -= self.weights[l][n][w]*dw*self.learning_rate
