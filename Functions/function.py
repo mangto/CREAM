@@ -7,3 +7,7 @@ def CostFunction(output, target, dervative:bool=False):
 def MultiplyEach(a:numpy.array,b:numpy.array): # MultiplyEach( [[1, 2], [3, 4]],   [1, 2] ) -> [[1, 2], [6, 8]]
     if (len(a) != len(b)): raise ValueError(f"Different inputs {len(a)}, {len(b)}")
     return numpy.array([a[i]*numpy.array(b[i]) for i in range(len(a))])
+
+def RotateWeight(weights:numpy.array):
+    print("!")
+    return numpy.flip(numpy.rot90(weights,k=-1),1)

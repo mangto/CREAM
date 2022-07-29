@@ -72,9 +72,16 @@ class Network:
 
     def PartialDerivative(self,weights:list, costs, l, n, w):
         result = costs*self.actives[l][n]*[self.function(a,Derivative=True) for a in self.actives[-1]]
+        
+        if (len(weights) > 1):
 
-        for i, weight in enumerate(weights[1:]):
-            Csys.out(f'{i} | {weight}', Csys.bcolors.OKCYAN)
+            for j, last in enumerate(RotateWeight(weights[-1])):
+
+                Csys.out(f'{j} | {last}', Csys.bcolors.WARNING)
+
+                for i, weight in enumerate(reversed(weights[1:-1])):
+
+                    Csys.out(f'{i} | {weight}', Csys.bcolors.OKCYAN)
 
 
 
