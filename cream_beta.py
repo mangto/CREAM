@@ -36,6 +36,7 @@ class Network:
         self.activations = self.reset_activation()
         self.real_activations = self.reset_activation()
         self.costs = numpy.zeros(NetworkShape[-1])
+        self.actives = self.reset_activation()
 
     def reset_activation(self):
         return numpy.array([numpy.zeros(hn) for hn in self.NetworkShape],dtype=object)     
@@ -53,13 +54,13 @@ class Network:
             for i in range(PackCount):
                 data = random.sample(dataset, 1)[0]
                 self.forward(data[0])
-                costs += CostFunction(self.activations[-1], data[1])
-                dcosts += CostFunction(self.activations[-1], data[1], True)
+                costs = costs + CostFunction(self.activations[-1], data[1])
+                dcosts = dcosts + CostFunction(self.activations[-1], data[1], True)
                 actives = actives + self.activations
-
-            print(actives)
             costs /= PackCount
+            dcosts /= PackCount
             actives /= PackCount
+            self.actives = actives
 
             self.backpropgation(dcosts, actives)
 
@@ -77,7 +78,12 @@ class Network:
 
 
     def PartialDerivative(self,weights:list, costs, l, n, w):
-        result = costs*self.activations[l][n]*[self.function(a,Derivative=True) for a in self.activations[-1]]
+        result = costs*self.actives[l][n]*[self.function(a,Derivative=True) for a in self.actives[-1]]
+
+        for i, weight in enumerate(weights[1:]):
+            Csys.out(f'{i} | {weight}', Csys.bcolors.OKCYAN)
+
+
 
         return sum(result)
 
@@ -89,11 +95,11 @@ class Network:
                 for w, weight in enumerate(neuron):
 
                     print(Csys.division(50))
-                    print(l, n, w)
+                    Csys.out(f"{l} {n} {w}", Csys.bcolors.FAIL, True)
 
                     weights = []
                     if (l < self.lenW-2):
-                        weights = [self.weights[l+1][w] + list(self.weights[l+2:])]
+                        weights = [self.weights[l+1][w]] + self.weights[l+2:]
 
                     elif (l == self.lenW-2):
                         weights = [self.weights[l+1][w]]
