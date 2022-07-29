@@ -3,6 +3,8 @@ import Csys
 
 Csys.clear()
 
+#cream.visualizer.run()
+
 net = cream.Network([2,2,2,2,2],function=cream.sigmoid)
 print(net.weights)
 

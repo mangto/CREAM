@@ -91,11 +91,11 @@ class Network:
                     Csys.out(f"{l} {n} {w}", Csys.bcolors.FAIL, True)
 
                     weights = []
-                    if (l < self.lenW-2):
-                        weights = [self.weights[l+1][w]] + self.weights[l+2:]
+                    if (l < self.lenW-1):
+                        weights = [self.weights[l][w]] + self.weights[l+1:]
 
-                    elif (l == self.lenW-2):
-                        weights = [self.weights[l+1][w]]
+                    elif (l == self.lenW-1):
+                        weights = [self.weights[l][w]]
 
                     dw = self.PartialDerivative(weights, DerivativeCost, l, n, w)
                     self.weights[l][n][w] -= self.weights[l][n][w]*dw*self.learning_rate
