@@ -55,6 +55,8 @@ class Network:
             actives /= PackCount
             self.actives = actives
 
+            print(sum(costs))
+
             self.backpropgation(dcosts, actives)
 
     def forward(self, inputs:list):
@@ -76,19 +78,12 @@ class Network:
         if (len(weights) > 1):
             out = []
             c = weights[0]*self.derive_activations[l+1][w]
-            Csys.out(f'c | {c}', Csys.bcolors.WARNING)
 
             for i, weight in enumerate(weights[1:]):
-
-                Csys.out(f'{i} |  {weight}', Csys.bcolors.OKCYAN)
-                Csys.out(f'{i} | {self.derive_activations[l+1]}', Csys.bcolors.OKGREEN)
-                #Csys.out(f'c | {c}', Csys.bcolors.OKGREEN)
-
                 c = MultiplyEach(weight, c*self.derive_activations[l+1])
+                c = numpy.sum(c, axis=0)
 
-                Csys.out(f'c | {c}', Csys.bcolors.OKBLUE)
-
-
+            result = result * c
 
         return sum(result)
 
@@ -98,10 +93,6 @@ class Network:
         for l, layer in enumerate(self.weights):
             for n, neuron in enumerate(layer):
                 for w, weight in enumerate(neuron):
-
-                    print(Csys.division(50))
-                    Csys.out(f"{l} {n} {w}", Csys.bcolors.FAIL, True)
-
                     weights = []
                     if (l < self.lenW-1):
                         weights = [self.weights[l][n]] + self.weights[l+1:]
@@ -110,4 +101,4 @@ class Network:
                         weights = [self.weights[l][n]]
 
                     dw = self.PartialDerivative(weights, DerivativeCost, l, n, w)
-                    self.weights[l][n][w] -= self.weights[l][n][w]*dw*self.learning_rate
+                    self.weights[l][n][w] += self.weights[l][n][w]*dw*self.learning_rate
