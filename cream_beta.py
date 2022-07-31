@@ -27,7 +27,7 @@ class Network:
         self.lenW = len(self.weights)
         self.bias = numpy.random.randn(1)[0]
         self.activations = self.reset_activation()
-        self.real_activations = self.reset_activation()
+        self.derive_activations = self.reset_activation()
         self.costs = numpy.zeros(NetworkShape[-1])
         self.actives = self.reset_activation()
 
@@ -60,28 +60,33 @@ class Network:
     def forward(self, inputs:list):
         if (len(inputs) != self.NetworkShape[0]): raise ValueError("Wrong input counts")
         self.activations = self.reset_activation()
-        self.real_activations = self.reset_activation()
+        self.derive_activations = self.reset_activation()
 
         self.activations[0] = inputs
         for l, neurons in enumerate(self.weights):
             activation = self.activations[l]
             new_activation = numpy.sum(MultiplyEach(neurons, activation), axis=0)+self.bias
             self.activations[l+1] = [self.function(a) for a in new_activation]
-            self.real_activations[l+1] = new_activation
+            self.derive_activations[l+1] = [self.function(a,Derivative=True) for a in new_activation]
 
 
     def PartialDerivative(self,weights:list, costs, l, n, w):
         result = costs*self.actives[l][n]*[self.function(a,Derivative=True) for a in self.actives[-1]]
         
         if (len(weights) > 1):
+            out = []
+            c = weights[0]*self.derive_activations[l+1][w]
+            Csys.out(f'c | {c}', Csys.bcolors.WARNING)
 
-            for j, last in enumerate(RotateWeight(weights[-1])):
+            for i, weight in enumerate(weights[1:]):
 
-                Csys.out(f'{j} | {last}', Csys.bcolors.WARNING)
+                Csys.out(f'{i} |  {weight}', Csys.bcolors.OKCYAN)
+                Csys.out(f'{i} | {self.derive_activations[l+1]}', Csys.bcolors.OKGREEN)
+                #Csys.out(f'c | {c}', Csys.bcolors.OKGREEN)
 
-                for i, weight in enumerate(reversed(weights[1:-1])):
+                c = MultiplyEach(weight, c*self.derive_activations[l+1])
 
-                    Csys.out(f'{i} | {weight}', Csys.bcolors.OKCYAN)
+                Csys.out(f'c | {c}', Csys.bcolors.OKBLUE)
 
 
 
@@ -99,10 +104,10 @@ class Network:
 
                     weights = []
                     if (l < self.lenW-1):
-                        weights = [self.weights[l][w]] + self.weights[l+1:]
+                        weights = [self.weights[l][n]] + self.weights[l+1:]
 
                     elif (l == self.lenW-1):
-                        weights = [self.weights[l][w]]
+                        weights = [self.weights[l][n]]
 
                     dw = self.PartialDerivative(weights, DerivativeCost, l, n, w)
                     self.weights[l][n][w] -= self.weights[l][n][w]*dw*self.learning_rate

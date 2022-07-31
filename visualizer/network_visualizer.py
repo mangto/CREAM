@@ -1,12 +1,41 @@
-import pygame, sys
-import win32api
+import pygame, sys, os, win32api, numpy
 from pygame import gfxdraw
+
+
+#####################################################################
+#####################################################################
+#####################################################################
+
+network_weights = []
+len_weights = [0]
+path = os.getcwd()
+settings = eval(open(f'{path}\\visualizer\\data\\settings.json','r',encoding='utf-8').read())
+
+winW =2*settings["padding"] + settings["setting_page"]
+winH = 2*settings["padding"]
+
+array = numpy.array
+
+network = eval(open(f'{os.getcwd()}\\visualizer\\data\\weights.dat','r',encoding='utf-8').read())
+
+if (type(network) == list):
+    network_weights = network
+    len_weights = [len(network[0])]+[len(weights[0]) for weights in network]
+
+    winW = settings["interval"]*len(network_weights) + 2*settings["padding"]# + settings["setting_page"]
+    winH = (max(len_weights)-1)*settings["neuron_interval"] + 2*settings["padding"]
+
+
+
+#####################################################################
+#####################################################################
+#####################################################################
 
 pygame.init()
 
-window = pygame.display.set_mode((600,400), pygame.RESIZABLE)
+window = pygame.display.set_mode((winW,winH), pygame.RESIZABLE)
 pygame.display.set_caption("CREAM Network Visualizer")
-pygame.display.set_icon(pygame.image.load(".\\visualizer\\icon.png"))
+pygame.display.set_icon(pygame.image.load(f"{path}\\visualizer\\icon.png"))
 clock = pygame.time.Clock()
 
 lastleft1 = 0
@@ -154,7 +183,7 @@ class System:
             s.fill(color)
             window.blit(s, (x,y))
     class ui:
-        ui_tag = eval(open('.\\visualizer\\data\\ui.json','r',encoding='utf-8').read())
+        ui_tag = eval(open(f'{path}\\visualizer\\data\\ui.json','r',encoding='utf-8').read())
         class button:
             def __init__(self,surface:pygame.Surface, x:int, y:int, sx:int, sy:int, icon:pygame.Surface=False,
                             color=(255,255,255),edge_color=(0,0,0), edge_thick=1,opacity:int=255,round:bool=False, roundness=1.0,
@@ -269,8 +298,10 @@ class System:
     def display(events):
         if (events != []):
             window.fill((255,255,255))
+            window.blit(activation_surf,(0,0))
+            window.blit(neuron_surf,(0,0))
 
-            pygame.display.update()
+            pygame.display.update() 
             clock.tick(30)
 
     def event(events):
@@ -278,6 +309,41 @@ class System:
             if (event.type == pygame.QUIT):
                 pygame.quit()
                 sys.exit()
+
+    def sigmoid(value):
+        return 1/(1+numpy.exp(-1*value))
+
+    def weightcolor(weight):
+        if (weight < 0):
+            color = (int(System.sigmoid(weight*-1)*255*0.9+25),0,0)            
+        else:
+            color = (0,0,int(255*System.sigmoid(weight))*0.9+25)
+
+        return color
+
+    def update_activation_surface(Surface:pygame.Surface,weights):
+        for l, layer in enumerate(weights):
+            for n, neuron in enumerate(layer):
+                for w, weight in enumerate(neuron):
+                    y = (len(layer)-1)*settings["neuron_interval"]+settings["padding"]
+                    y2 = (len(neuron)-1)*settings["neuron_interval"]+settings["padding"]
+
+                    pygame.draw.line(Surface,System.weightcolor(weight),
+                                (int(l*settings["interval"]+settings["padding"]), int((winH-y)/2+n*settings["neuron_interval"]+settings["padding"]/2)),
+                                (int((l+1)*settings["interval"]+settings["padding"]), int((winH-y2)/2+w*settings["neuron_interval"]+settings["padding"]/2)),
+                                1)
+
+neuron_surf = pygame.Surface((winW,winH),pygame.SRCALPHA)
+activation_surf = pygame.Surface((winW,winH),pygame.SRCALPHA)
+
+System.update_activation_surface(activation_surf,network_weights)
+
+for i, n in enumerate(len_weights):
+    for j in range(n):
+        y = (n-1)*settings["neuron_interval"]+settings["padding"]
+        pygame.draw.circle(neuron_surf,(0,0,0),(i*settings["interval"]+settings["padding"], (winH-y)/2+j*settings["neuron_interval"]+settings["padding"]/2),20, 2)
+        pygame.draw.circle(neuron_surf,(255,255,255),(i*settings["interval"]+settings["padding"], (winH-y)/2+j*settings["neuron_interval"]+settings["padding"]/2),19)
+
 while True:
     events = pygame.event.get()
 

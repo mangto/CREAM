@@ -1,9 +1,9 @@
 import subprocess
 from threading import Thread
 
-def run():
+def run(argv:list = []):
     thread = Thread(target=starter)
     thread.start()
 
-def starter():
-    subprocess.call(["python",f'visualizer\\network_visualizer.py'], shell=False)
+def starter(argv:list = []):
+    subprocess.call(["python", 'visualizer\\network_visualizer.py'], shell=False)
