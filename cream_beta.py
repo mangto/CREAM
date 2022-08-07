@@ -4,6 +4,7 @@ import Csys # -> for system control
 import visualizer
 from Functions import * # -> afunctions
 import datasets as dataset
+import nvdia_smi
 
 
 class Network:
@@ -50,14 +51,11 @@ class Network:
                 costs = costs + CostFunction(self.activations[-1], data[1])
                 dcosts = dcosts + CostFunction(self.activations[-1], data[1], True)
                 actives = actives + self.activations
-            costs /= PackCount
-            dcosts /= PackCount
-            actives /= PackCount
             self.actives = actives
 
             print(sum(costs))
 
-            self.backpropgation(dcosts, actives)
+            self.backpropgation(dcosts)
 
     def forward(self, inputs:list):
         if (len(inputs) != self.NetworkShape[0]): raise ValueError("Wrong input counts")
@@ -74,25 +72,30 @@ class Network:
 
     def PartialDerivative(self,weights:list, costs, l, n, w):
         result = costs*self.actives[l][n]*[self.function(a,Derivative=True) for a in self.actives[-1]]
-        
+        #Csys.out(f"{l} {n} {w}", Csys.bcolors.FAIL, True)
+        #print(result)
+
         if (len(weights) > 1):
-            out = []
             c = weights[0]*self.derive_activations[l+1][w]
+            #Csys.out(f"! c | {c}", Csys.bcolors.WARNING)
 
             for i, weight in enumerate(weights[1:]):
+                #Csys.out(f"{i} | {weight}",Csys.bcolors.OKCYAN)
                 c = MultiplyEach(weight, c*self.derive_activations[l+1])
                 c = numpy.sum(c, axis=0)
+            #Csys.out(f"! c | {c}", Csys.bcolors.FAIL)
 
             result = result * c
 
         return sum(result)
 
-    def backpropgation(self, DerivativeCost, active:list):
+    def backpropgation(self, DerivativeCost):
         if (len(DerivativeCost) != self.NetworkShape[-1]): raise ValueError("Wrong input counts")
 
         for l, layer in enumerate(self.weights):
             for n, neuron in enumerate(layer):
                 for w, weight in enumerate(neuron):
+                    #print(Csys.division(60))
                     weights = []
                     if (l < self.lenW-1):
                         weights = [self.weights[l][n]] + self.weights[l+1:]
@@ -101,4 +104,4 @@ class Network:
                         weights = [self.weights[l][n]]
 
                     dw = self.PartialDerivative(weights, DerivativeCost, l, n, w)
-                    self.weights[l][n][w] += self.weights[l][n][w]*dw*self.learning_rate
+                    self.weights[l][n][w] -= self.weights[l][n][w]*dw*self.learning_rate
