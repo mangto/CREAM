@@ -44,7 +44,7 @@ class snn:
 
         self.layercount = len(NetworkShape)
         self.weights = snn.init_weights(NetworkShape)
-        self.biases = numpy.zeros(self.layercount-1)#snn.init_bias(self.layercount)
+        self.biases = snn.init_bias(self.layercount)
 
         self.activations = self.reset_activation()
         self.derive_activations = self.reset_activation()
@@ -80,10 +80,11 @@ class snn:
 
 
             #test
-            self.forwardfeed(dataset[1][0])
-            Csys.out(f"{Error(self.activations[-1],dataset[1][1])} | {self.biases}",Csys.bcolors.FAIL)
-            cost = sum(Error(self.activations[-1],dataset[1][1]))
-
+            cost = 0
+            for data in dataset:
+                self.forwardfeed(data[0])
+                cost += sum(Error(self.activations[-1],data[1]))
+            Csys.out(f"{data} | {cost} | {self.biases}",Csys.bcolors.FAIL)
 
 
     def forwardfeed(self, input:list):
@@ -112,8 +113,8 @@ class snn:
         
 
         dws = DErrors*numpy.array(self.derive_activations[-1])
-        # Partial Derivative in 1nd layer of weight
-
+        # Partial Derivative in 1st layer of weight
+    
         for n, neuron in enumerate(self.weights[0]):
             for w, weight in enumerate(neuron):
                 self.weights[0][n][w] = self.weights[0][n][w]*(1-sum(dws*self.l_rate*self.actives[0][n]*self.weights[1][w]*self.dactivations[1][w]))
