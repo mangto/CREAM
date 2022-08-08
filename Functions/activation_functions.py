@@ -19,8 +19,6 @@ def Leaky_ReLU(value, Derivative=False):
         if (value < 0): return 0.01
         else: return 1
 
-def EReLU(value, Derivative=False):
-    if (Derivative == False): return max(0.01*sigmoid(value), value)
-    else:
-        if (value < 0): sigmoid
-        else: return 1
+def IdentityFunction(value, Derivative = False):
+    if (Derivative == False): return value
+    else: return 1
