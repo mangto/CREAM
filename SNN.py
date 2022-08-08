@@ -85,3 +85,43 @@ class snn:
                 self.forwardfeed(data[0])
                 cost += sum(Error(self.activations[-1],data[1]))
             Csys.out(f"{epoch} {cost}",Csys.bcolors.FAIL)
+
+
+    def forwardfeed(self, input:list):
+        if (type(input) != list and type(input) != numpy.array): raise TypeError(f"We need list or numpy.array for input, not {type(input)}")
+        if (len(input) != self.NetworkShape[0]): raise ValueError("nah,, wrong count of input")
+
+        self.activations = self.reset_activation()
+        self.pure_activations = self.reset_activation()
+        
+        self.activations[0] = input
+        self.derive_activations[0] = input
+
+        for i in range(self.layercount-1):
+            new_activ = MultiplyEach(self.weights[i],self.activations[i])
+            new_activ = numpy.sum(new_activ,axis=0)+self.biases[i]
+            self.derive_activations[i+1] = [self.function(i, Derivative=True) for i in new_activ]
+            self.activations[i+1] =[self.function(i) for i in new_activ]
+
+    def backpropgation(self, target:list): # target is a list of numbers that our network have to make out
+        if (type(target) != list and type(target) != numpy.array): raise TypeError(f"We need list or numpy.array for input, not {type(input)}")
+        if (len(target) != self.NetworkShape[-1]): raise ValueError("nah,, wrong count of input")
+
+        Errors = Error(self.actives[-1], target)
+        ErrorTotal = sum(Errors)
+        DErrors = Error(self.actives[-1], target, True)
+        
+
+        dws = DErrors*numpy.array(self.derive_activations[-1])
+        # Partial Derivative in 1st layer of weight
+    
+        for n, neuron in enumerate(self.weights[0]):
+            for w, weight in enumerate(neuron):
+                self.weights[0][n][w] = self.weights[0][n][w]*(1-sum(dws*self.l_rate*self.actives[0][n]*self.weights[1][w]*self.dactivations[1][w]))
+
+        # Partial Derivative in 2nd layer of weight
+
+
+        for n, neuron in enumerate(self.actives[-2]):
+            dw = dws*neuron
+            self.weights[1] = self.weights[1]*(1-dw*self.l_rate)
