@@ -1,13 +1,14 @@
 import numpy, random
 
-import Csys # -> for system control
+import tool.Csys as Csys # -> for system control
 import visualizer
 from Functions import * # -> afunctions
-import datasets as dataset
-import nvdia_smi
+import tool.datasets as dataset
 
 
 class snn:
+    input_type = [list, numpy.array, numpy.ndarray]
+
     # 
     # SNN is an abbreviation of Simple Neural Network.
     # It has only one hidden layer
@@ -20,14 +21,16 @@ class snn:
     def init_weights(NetworkShape:list):
         result = [
             [
-                list(numpy.random.randn(NetworkShape[i+1])) for j in range(n)
+                list(numpy.random.randn(NetworkShape[i+1])*0.1) for j in range(n)
             ] for i, n in enumerate(NetworkShape[:-1])
         ]
 
         return result
 
-    def init_bias(LayerCount):
-        result = list(numpy.random.randn(LayerCount-1))
+    def init_biases(NetworkShape:list):
+        result = [
+            list(numpy.zeros(i)) for i in NetworkShape[1:]
+        ]
 
         return result
 
@@ -44,7 +47,7 @@ class snn:
 
         self.layercount = len(NetworkShape)
         self.weights = snn.init_weights(NetworkShape)
-        self.biases = numpy.zeros(self.layercount-1) #snn.init_bias(self.layercount)
+        self.biases = snn.init_biases(NetworkShape)
 
         self.activations = self.reset_activation()
         self.derive_activations = self.reset_activation()
@@ -52,44 +55,9 @@ class snn:
         self.actives = self.reset_activation()
         self.dactivations = self.reset_activation()
 
-    def train(self, PackCount:int, dataset:list, MaxEpoch:int=None, EndCost:float=None):
-        cost = 1
-        epoch = 0
-
-        while ((EndCost != None and cost > EndCost) or epoch == 0 or (MaxEpoch != None and epoch < MaxEpoch)):
-            epoch += 1
-            target = numpy.zeros(self.NetworkShape[-1])
-            actives = self.reset_activation()
-            dactive = self.reset_activation()
-
-            for i in range(PackCount):
-                data = random.sample(dataset, 1)[0]
-                self.forwardfeed(data[0])
-                target = target + data[1]
-                actives = actives + self.activations
-                dactive = dactive + self.derive_activations
-
-            actives /= PackCount
-            dactive /= PackCount
-            target = list(target/PackCount)
-
-            self.actives = actives
-            self.dactivations = dactive
-
-            self.backpropgation(target)
-
-
-            #test
-            cost = 0
-            for data in dataset:
-                self.forwardfeed(data[0])
-                cost += sum(Error(self.activations[-1],data[1]))
-            Csys.out(f"{epoch} {cost}",Csys.bcolors.FAIL)
-
-
-    def forwardfeed(self, input:list):
-        if (type(input) != list and type(input) != numpy.array): raise TypeError(f"We need list or numpy.array for input, not {type(input)}")
-        if (len(input) != self.NetworkShape[0]): raise ValueError("nah,, wrong count of input")
+    def forward(self, input:list):
+        if (type(input) not in snn.input_type): raise ValueError(f"To do forward, input type have to be list or numpy.array, not {type(input)}")
+        if (len(input) != self.NetworkShape[0]): raise ValueError(f"Wrong input counts, need: {self.NetworkShape[0]} taken: {len(input)}")
 
         self.activations = self.reset_activation()
         self.pure_activations = self.reset_activation()
@@ -104,24 +72,22 @@ class snn:
             self.activations[i+1] =[self.function(i) for i in new_activ]
 
     def backpropgation(self, target:list): # target is a list of numbers that our network have to make out
-        if (type(target) != list and type(target) != numpy.array): raise TypeError(f"We need list or numpy.array for input, not {type(input)}")
-        if (len(target) != self.NetworkShape[-1]): raise ValueError("nah,, wrong count of input")
-
-        Errors = Error(self.actives[-1], target)
-        ErrorTotal = sum(Errors)
-        DErrors = Error(self.actives[-1], target, True)
         
+        if (type(target) not in snn.input_type): raise ValueError(f"To do forward, target type have to be list or numpy.array, not {type(target)}")
+        if (len(target) != self.NetworkShape[-1]): raise ValueError(f"Wrong target counts, need: {self.NetworkShape[0]} taken: {len(target)}")
 
-        dws = DErrors*numpy.array(self.derive_activations[-1])
-        # Partial Derivative in 1st layer of weight
-    
-        for n, neuron in enumerate(self.weights[0]):
-            for w, weight in enumerate(neuron):
-                self.weights[0][n][w] = self.weights[0][n][w]*(1-sum(dws*self.l_rate*self.actives[0][n]*self.weights[1][w]*self.dactivations[1][w]))
+        #
+        delta = numpy.array(self.activations[-1]) - target
+        self.weights[1] -= self.l_rate * numpy.transpose(numpy.reshape(delta, (self.NetworkShape[-1], 1)) * self.activations[1])
+        self.biases[1] -= self.l_rate * delta
 
-        # Partial Derivative in 2nd layer of weight
+        h = numpy.array(self.activations[1])
+        delta = numpy.sum(self.weights[1] * delta,axis=1)*h*(1-h)
+        self.weights[0] -= self.l_rate * numpy.transpose(numpy.reshape(delta, (self.NetworkShape[1], 1)) * self.activations[0])
+        self.biases[0] -= self.l_rate * delta
 
-
-        for n, neuron in enumerate(self.actives[-2]):
-            dw = dws*neuron
-            self.weights[1] = self.weights[1]*(1-dw*self.l_rate)
+    def save_weight(self):
+        return [list(w) for w in self.weights]
+        
+    def save_bias(self):
+        return [list(b) for b in self.biases]
