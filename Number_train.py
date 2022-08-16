@@ -14,18 +14,20 @@ def get_mnist():
     return images, labels
 
 network = cream.snn([784, 20, 10], cream.sigmoid, LearningRate=0.01)
+network.load_weight(pickle.load(open(".\\Number_data\\weights.dat","rb")))
+network.load_bias(pickle.load(open(".\\Number_data\\biases.dat","rb")))
 images, labels = get_mnist()
 count = len(images)
 accuracy = 0
 epoch = 0
 
 
-while accuracy < 99.9:
+while accuracy > 100 or epoch == 0:
     correct = 0
     i = 0
     epoch += 1
 
-    bar = pb.bar(width = 40, design=pb.box, title=f"epoch {epoch}")
+    bar = pb.bar(width = 70, design=pb.box, title=f"epoch {epoch}")
     bar.start()
 
     for image, label in zip(images,labels):
@@ -34,15 +36,14 @@ while accuracy < 99.9:
         image = numpy.reshape(image, (1, 784))[0]
         network.forward(image)
 
-        if (numpy.argmax(network.activations[-1]) == numpy.argmax(label)):
-            correct += 1
+        correct += sum(cream.Error(network.activations[-1],label))
 
         network.backpropgation(label)
 
-    accuracy = round(correct/count*100, 2)
+    accuracy = correct
 
-    print(f"accuracy: {accuracy}%")
-pickle.dump(network.weights, open(".\\Number_data\\weights.dat","wb"))
-pickle.dump(network.biases, open(".\\Number_data\\biases.dat","wb"))
+    print(f"Total Error: {accuracy}")
+    pickle.dump(network.weights, open(".\\Number_data\\weights.dat","wb"))
+    pickle.dump(network.biases, open(".\\Number_data\\biases.dat","wb"))
 
 Csys.stop()

@@ -140,6 +140,7 @@ class system:
         window.blit(canvas,(int((480-(width*28+1))/2),int((480-(width*28+1))/2)))
         window.blit(grid,(int((480-(width*28+1))/2),int((480-(width*28+1))/2)))
         pygame.draw.line(window,(0,0,0),(int((480-(width*28+1))/2)*2+width*28+1, 0),(int((480-(width*28+1))/2)*2+width*28+1, 480))
+        system.draw.text(f"answer: {numpy.argmax(network.activations[-1])}", font("Arial", 16), window, int((480-(width*28+1))/2)*2+width*28+10, 20, "left")
 
         pygame.display.update()
         clock.tick(60)
@@ -152,7 +153,6 @@ while True:
         n = 0
         Csys.clear()
         network.forward(numpy.reshape(gr, (1, 784))[0])
-        system.draw.text([round(i,2) for i in network.activations[-1]],)
 
     system.event(events)
     system.display()

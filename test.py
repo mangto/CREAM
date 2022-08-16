@@ -5,8 +5,20 @@ import tool.progress_bar as pb
 
 
 import numpy, random, time
+from threading import Thread
 
 Csys.clear()
+ 
 
-network = cream.snn([2,4,1],cream.sigmoid)
-print(network.biases)
+
+
+import pygame, sys
+
+window = pygame.display.set_mode((1920,1080),pygame.FULLSCREEN)
+pygame.mouse.set_visible(False)
+
+while True:
+    for event in pygame.event.get():
+        if (event.type == pygame.QUIT):
+            pygame.quit()
+            sys.exit()
