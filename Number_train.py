@@ -1,4 +1,4 @@
-import numpy
+import numpy, pickle
 import SNN as cream
 import tool.Csys as Csys
 import tool.progress_bar as pb
@@ -20,7 +20,7 @@ accuracy = 0
 epoch = 0
 
 
-while accuracy < 94.5:
+while accuracy < 99.9:
     correct = 0
     i = 0
     epoch += 1
@@ -42,8 +42,7 @@ while accuracy < 94.5:
     accuracy = round(correct/count*100, 2)
 
     print(f"accuracy: {accuracy}%")
-
-open(".\\Number_data\\weights.dat",'w',encoding='utf-8').write(str(network.save_weight()))
-open(".\\Number_data\\biases.dat",'w',encoding='utf-8').write(str(network.save_bias()))
+pickle.dump(network.weights, open(".\\Number_data\\weights.dat","wb"))
+pickle.dump(network.biases, open(".\\Number_data\\biases.dat","wb"))
 
 Csys.stop()

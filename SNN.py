@@ -55,6 +55,7 @@ class snn:
         self.actives = self.reset_activation()
         self.dactivations = self.reset_activation()
 
+
     def forward(self, input:list):
         if (type(input) not in snn.input_type): raise ValueError(f"To do forward, input type have to be list or numpy.array, not {type(input)}")
         if (len(input) != self.NetworkShape[0]): raise ValueError(f"Wrong input counts, need: {self.NetworkShape[0]} taken: {len(input)}")
@@ -91,3 +92,9 @@ class snn:
         
     def save_bias(self):
         return [list(b) for b in self.biases]
+
+    def load_weight(self, weight):
+        self.weights = [numpy.array(w) for w in weight]
+
+    def load_bias(self, bias):
+        self.biases = [numpy.array(b) for b in bias]

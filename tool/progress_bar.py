@@ -11,20 +11,25 @@ class bar:
         self.diff = 100/width
         self.count = 0
         self.title = title
+        self.n = 0
     
     def start(self):
-        sys.stdout.write(f"{self.title} [%s]" % (" " * self.width))
-        sys.stdout.flush()
-        sys.stdout.write("\b" * (self.width+1)) # return to start of line, after '['
         self.time = time.time()
+        sys.stdout.write('\r')
+        sys.stdout.write(f"[%-{self.width}s] %f%% estimated: %fs" % (self.design*self.count, self.percentage, time.time()-self.time))
+        sys.stdout.flush()
 
 
     def update(self, amount:float): # percentage
         self.percentage = amount
 
-        if (self.percentage - self.updated >= self.diff):
-            sys.stdout.write(self.design)
+        self.n += 1
+        if (self.n == 10):
+            sys.stdout.write('\r')
+            sys.stdout.write(f"[%-{self.width}s] %f%% estimated: %fs" % (self.design*self.count, self.percentage, time.time()-self.time))
             sys.stdout.flush()
+            self.n = 0
+        if (self.percentage - self.updated >= self.diff):
             self.count += 1
             self.updated = self.count*self.diff
 
@@ -32,4 +37,4 @@ class bar:
                 self.end()
 
     def end(self):
-        sys.stdout.write(f"] estimated: {round(time.time()-self.time, 2)}\n") # this ends the progress bar"
+        sys.stdout.write("\n")
