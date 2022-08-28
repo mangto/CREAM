@@ -8,16 +8,18 @@ def sigmoid(value, Derivative=False):
         return sig*(1-sig)
 
 def ReLU(value, Derivative=False):
-    if (Derivative == False): return max(0, value)
+    if (Derivative == False): return numpy.maximum(0, value)
     else:
-        if (value < 0): return 0
-        else: return 1
+        value[value<=0] = 0
+        value[value>0] = 1
+        return value
 
 def Leaky_ReLU(value, Derivative=False):
-    if (Derivative == False): return max(0.01*value, value)
+    if (Derivative == False): return numpy.maximum(0.01*value, value)
     else:
-        if (value < 0): return 0.01
-        else: return 1
+        value[value<=0] = 0.01
+        value[value>0] = 1
+        return value
 
 def Linear(value, Derivative = False):
     if (Derivative == False): return value

@@ -3,7 +3,7 @@
 
 
 import numpy
-import Csys
+import tool.Csys as Csys
 
 def sigmoid(value):
     return 1/(1+numpy.exp(-1*value))

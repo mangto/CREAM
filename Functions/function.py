@@ -12,9 +12,6 @@ def MultiplyEach3(a:numpy.array,b:numpy.array,c:numpy.array): # MultiplyEach( [[
     if (len(a) != len(b)): raise ValueError(f"Different inputs {len(a)}, {len(b)}, {len(c)}")
     return numpy.array([a[i]*numpy.array(b[i])*numpy.array(c[i]) for i in range(len(a))])
 
-def RotateWeight(weights:numpy.array):
-    return numpy.flip(numpy.rot90(weights,k=-1),1)
-
 def Pad(value:numpy.array, padd=2):
     numpy.pad(value,((padd,padd),(padd,padd)), 'constant', constant_values=0)
     

@@ -1,3 +1,3 @@
 @echo off
 
-python Number_train.py
+python test.py
