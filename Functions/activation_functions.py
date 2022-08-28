@@ -19,6 +19,6 @@ def Leaky_ReLU(value, Derivative=False):
         if (value < 0): return 0.01
         else: return 1
 
-def IdentityFunction(value, Derivative = False):
+def Linear(value, Derivative = False):
     if (Derivative == False): return value
     else: return 1

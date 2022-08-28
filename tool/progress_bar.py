@@ -16,7 +16,7 @@ class bar:
     def start(self):
         self.time = time.time()
         sys.stdout.write('\r')
-        sys.stdout.write(f"[%-{self.width}s] %f%% estimated: %fs" % (self.design*self.count, self.percentage, time.time()-self.time))
+        sys.stdout.write(f"{self.title} [%-{self.width}s] %f%% estimated: %fs" % (self.design*self.count, self.percentage, time.time()-self.time))
         sys.stdout.flush()
 
 
@@ -26,7 +26,7 @@ class bar:
         self.n += 1
         if (self.n == 10):
             sys.stdout.write('\r')
-            sys.stdout.write(f"[%-{self.width}s] %f%% estimated: %fs" % (self.design*self.count, self.percentage, time.time()-self.time))
+            sys.stdout.write(f"{self.title} [%-{self.width-1}s] %f%% estimated: %fs" % (self.design*self.count, self.percentage, time.time()-self.time))
             sys.stdout.flush()
             self.n = 0
         if (self.percentage - self.updated >= self.diff):

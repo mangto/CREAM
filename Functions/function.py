@@ -14,3 +14,7 @@ def MultiplyEach3(a:numpy.array,b:numpy.array,c:numpy.array): # MultiplyEach( [[
 
 def RotateWeight(weights:numpy.array):
     return numpy.flip(numpy.rot90(weights,k=-1),1)
+
+def Pad(value:numpy.array, padd=2):
+    numpy.pad(value,((padd,padd),(padd,padd)), 'constant', constant_values=0)
+    

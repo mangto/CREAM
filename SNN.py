@@ -5,7 +5,6 @@ import visualizer
 from Functions import * # -> afunctions
 import tool.datasets as dataset
 
-
 class snn:
     input_type = [list, numpy.array, numpy.ndarray]
 
@@ -20,24 +19,45 @@ class snn:
 
     def init_weights(NetworkShape:list):
         result = [
-            [
-                list(numpy.random.randn(NetworkShape[i+1])*0.1) for j in range(n)
+            [list(numpy.random.randn(NetworkShape[i+1])*0.1) for j in range(n)
             ] for i, n in enumerate(NetworkShape[:-1])
         ]
 
         return result
 
     def init_biases(NetworkShape:list):
-        result = [
-            list(numpy.zeros(i)) for i in NetworkShape[1:]
-        ]
+        result = [list(numpy.zeros(i)) for i in NetworkShape[1:]]
 
         return result
 
     def reset_activation(self):
-        return numpy.array([numpy.zeros(hn) for hn in self.NetworkShape],dtype=object)    
+        return numpy.array([numpy.zeros(hn) for hn in self.NetworkShape],dtype=object)
+    
+    def save_weight(self):
+        return [list(w) for w in self.weights]
+        
+    def save_bias(self):
+        return [list(b) for b in self.biases]
 
-    def __init__(self, NetworkShape:list, function:sigmoid, LearningRate:float=0.3):
+    def load_weight(self, weight):
+        self.weights = [numpy.array(w) for w in weight]
+
+    def load_bias(self, bias):
+        self.biases = [numpy.array(b) for b in bias]
+
+    
+    def __str__(self):
+        result = f'''
+        | type: Simple Neural Network
+        | Network Shape: {self.NetworkShape}
+        | Activation Function: {self.function}
+        | Learning Rate: {self.l_rate}
+        | Input Function: {self.inputfunction}
+        '''
+
+
+
+    def __init__(self, NetworkShape:list, function=sigmoid, LearningRate:float=0.3, InputFunction=Pad):
 
         if (len(NetworkShape) != 3): raise ValueError("That's not 'snn' a.k.a. Simple Neural Network")
 
@@ -54,6 +74,8 @@ class snn:
 
         self.actives = self.reset_activation()
         self.dactivations = self.reset_activation()
+
+        self.inputfunction = InputFunction
 
 
     def forward(self, input:list):
@@ -86,15 +108,3 @@ class snn:
         delta = numpy.sum(self.weights[1] * delta,axis=1)*h*(1-h)
         self.weights[0] -= self.l_rate * numpy.transpose(numpy.reshape(delta, (self.NetworkShape[1], 1)) * self.activations[0])
         self.biases[0] -= self.l_rate * delta
-
-    def save_weight(self):
-        return [list(w) for w in self.weights]
-        
-    def save_bias(self):
-        return [list(b) for b in self.biases]
-
-    def load_weight(self, weight):
-        self.weights = [numpy.array(w) for w in weight]
-
-    def load_bias(self, bias):
-        self.biases = [numpy.array(b) for b in bias]
