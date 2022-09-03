@@ -41,7 +41,8 @@ class network:
     def init_biases(NetworkShape:list):
         # initialize biases with network shape
 
-        result = [numpy.random.randn(shape)*0.1 for shape in NetworkShape[1:]]
+        # result = [numpy.random.randn(shape)*0.1 for shape in NetworkShape[1:]]
+        result = [numpy.zeros(shape) for shape in NetworkShape[1:]]
 
         return result
 
@@ -55,6 +56,10 @@ class network:
 
     def __init__(self, NetworkShape:list, ActivationFunction=sigmoid, LearningRate:float=0.3,
                     weights:numpy.array=None, biases:numpy.array=None):
+
+        assert len(NetworkShape) == 4, f"Depth of Neural Network has to be 4, Current Depth: {len(NetworkShape)}"
+
+
         self.NetworkShape = NetworkShape
         self.acfunc = ActivationFunction
         self.lrate = LearningRate
@@ -66,6 +71,7 @@ class network:
         self.raw_activ = network.reset_activation(NetworkShape)
 
         self.depth = len(NetworkShape)
+
     def forward(self, input:list):
         assert type(input) in network.InputType, "Wrong Type of Input"
         assert len(input) == self.NetworkShape[0], f"Wrong Count of Input, need: {self.NetworkShape[0]} taken: {len(input)}"
@@ -80,7 +86,8 @@ class network:
 
             self.raw_activ[i+1] = raw
             self.activ[i+1] = self.acfunc(raw)
-    
+
+
     def backpropgation(self, target:list, activations=None, raw_activations=None):
         assert type(target) in network.InputType, "Wrong Type of Target"
         assert len(target) == self.NetworkShape[-1], f"Wrong Count of Input, need: {self.NetworkShape[-1]} taken: {len(target)}"
@@ -88,60 +95,46 @@ class network:
         activations = activations if activations else self.activ
         raw_activations = raw_activations if raw_activations else self.raw_activ
 
-        # Code Of SNN
-        # 
-        # delta = numpy.array(self.activations[-1]) - target
-        # self.weights[1] -= self.l_rate * numpy.transpose(numpy.reshape(delta, (self.NetworkShape[-1], 1)) * self.activations[1])
-        # self.biases[1] -= self.l_rate * delta
-
-        # h = numpy.array(self.activations[1])
-        # delta = numpy.sum(self.weights[1] * delta,axis=1)*h*(1-h)
-        # self.weights[0] -= self.l_rate * numpy.transpose(numpy.reshape(delta, (self.NetworkShape[1], 1)) * self.activations[0])
-        # self.biases[0] -= self.l_rate * delta
-
         error = activations[-1] - target
-
-        delta = error
-        for l, layer in enumerate(reversed(self.weights)):
-            
-            l = self.depth-2-l # reverse sequence
-
-
-            if (l < self.depth-2): # if layer is not hidden_last to output
-                weight = numpy.transpose(self.weights[l+1])
-                delta = numpy.sum(delta * weight, axis=1)/len(weight)* self.acfunc(raw_activations[l+1],True)
-                # Csys.out(l, Csys.bcolors.FAIL)
-            
-            else:
-                delta = delta * self.acfunc(raw_activations[l+1], True)
- 
-            dw = numpy.dot(delta[:,None], numpy.array(self.activ[l])[None])
-
-            # print(dw)
-            # Csys.division(30)
-
-            self.weights[l] -= dw * self.activ[l] * self.lrate  * self.weights[l]
-            self.biases[l] -= numpy.sum(dw, axis=1)* self.lrate * self.biases[l]
-
-        #     Csys.out(self.activ[l], Csys.bcolors.OKBLUE)
-        #     print(dw * self.activ[l])
-        #     Csys.division(60)
-
-        # Csys.stop()
-
-
-    def backward(self, target:list, activations=None, raw_activations=None):
-        assert type(target) in network.InputType, "Wrong Type of Target"
-        assert len(target) == self.NetworkShape[-1], f"Wrong Count of Input, need: {self.NetworkShape[-1]} taken: {len(target)}"
-
-        activations = activations if activations else self.activ
-        raw_activations = raw_activations if raw_activations else self.raw_activ
-
-        error = Error(activations[-1] - target)
         delta = error
 
-        for l in range(self.depth-1):
-            l = self.depth - 2 - l # Reverse Sequence 
+        
+
+        # # Csys.out(error, Csys.bcolors.WARNING)
+        # # Csys.out(self.acfunc(self.raw_activ[2], True), Csys.bcolors.WARNING)
+
+        # # h2 -> out
+        # # delta_h2o = delta * self.acfunc(self.raw_activ[2], True)
+        # delta_h2o = numpy.sum(numpy.outer(delta, self.acfunc(self.raw_activ[2], True)), axis=0)
+
+        # # print(delta_h2o)
+
+        # self.weights[2] -= self.lrate * delta_h2o * self.activ[2]
+        # self.biases[2] -= self.lrate * numpy.sum(delta_h2o, axis=0)
+
+        # # h1 -> h2
+        # # delta_h1h2 = delta_h2o * self.weights[2] * self.acfunc(self.raw_activ[1], True)
+        # delta_h1h2 = numpy.outer(delta_h2o, self.acfunc(self.raw_activ[1], True)) * numpy.transpose(self.weights[2])
+
+        # # print(delta_h1h2)
+
+        # self.weights[1] -= self.lrate * delta_h1h2 * self.activ[1]
+        # self.biases[1] -= self.lrate * numpy.sum(delta_h1h2, axis=1)
+
+        # #in -> h1
+
+        # #delta_h1h2 = numpy.sum(delta_h1h2, axis=1)
+
+        # # print(delta_h1h2)
+
+        # delta_ih1 = numpy.reshape(numpy.sum(numpy.outer(delta_h1h2, self.acfunc(self.raw_activ[0], True)),axis=1), self.weights[1].shape) * self.weights[1]
+
+        # # print(delta_ih1)
+
+        # self.weights[0] -= self.lrate * numpy.sum(delta_ih1, axis=0) * self.activ[0]
+        # self.biases[0] -= self.lrate * numpy.sum(delta_ih1, axis=0)
+
+        # # print(delta_ih1)
 
 
     def train(self, datasets, MaxEpoch:int=None, MinError:float=None):
