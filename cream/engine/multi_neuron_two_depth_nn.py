@@ -108,10 +108,6 @@ class network:
         delta = numpy.sum(delta  * numpy.transpose(self.weights[-1])* self.acfunc(self.raw_activ[-2], True)[:,None], axis=1)
         self.weights[-2] -= self.lrate * numpy.outer(delta, self.activ[-3])
         self.biases[-2] -= self.lrate * delta
-
-        delta = numpy.sum(delta  * numpy.transpose(self.weights[-2])* self.acfunc(self.raw_activ[-3], True)[:,None], axis=1)
-        self.weights[-3] -= self.lrate * numpy.outer(delta, self.activ[-4])
-        self.biases[-3] -= self.lrate * delta
         
 
     def train(self, datasets, MaxEpoch:int=None, MinError:float=None):
