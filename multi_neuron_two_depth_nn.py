@@ -5,6 +5,8 @@ import visualizer
 from Functions import * # -> afunctions
 import tool.datasets as dataset
 
+from numba import jit
+
 class network:
 
     InputType = [list, numpy.array, numpy.ndarray]
@@ -39,7 +41,7 @@ class network:
         # initialize biases with network shape
 
         # result = [numpy.random.randn(shape)*0.1 for shape in NetworkShape[1:]]
-        result = [numpy.zeros(shape) for shape in NetworkShape[1:]]
+        result = [numpy.random.randn(shape)*0.1 for shape in NetworkShape[1:]]
 
         return result
 
@@ -105,10 +107,14 @@ class network:
         self.weights[-1] -= self.lrate * numpy.outer(delta, self.activ[-2])
         self.biases[-1] -= self.lrate * delta
 
-        for i in range(self.depth-2):
-            delta = numpy.sum(delta  * numpy.transpose(self.weights[-i-1])* self.acfunc(self.raw_activ[-i-2], True)[:,None], axis=1)
-            self.weights[-i-2] -= self.lrate * numpy.outer(delta, self.activ[-i-3])
-            self.biases[-i-2] -= self.lrate * delta
+        
+        delta = numpy.sum(delta  * numpy.transpose(self.weights[-1])* self.acfunc(self.raw_activ[-2], True)[:,None], axis=1)
+        self.weights[-2] -= self.lrate * numpy.outer(delta, self.activ[-3])
+        self.biases[-2] -= self.lrate * delta
+
+        delta = numpy.sum(delta  * numpy.transpose(self.weights[-2])* self.acfunc(self.raw_activ[-3], True)[:,None], axis=1)
+        self.weights[-3] -= self.lrate * numpy.outer(delta, self.activ[-4])
+        self.biases[-3] -= self.lrate * delta
         
 
     def train(self, datasets, MaxEpoch:int=None, MinError:float=None):
