@@ -1,12 +1,9 @@
-from tkinter.tix import MAX
 import numpy, random
 
 import tool.Csys as Csys # -> for system control
 import visualizer
 from Functions import * # -> afunctions
 import tool.datasets as dataset
-
-import numpy, random
 
 class network:
 
@@ -52,12 +49,17 @@ class network:
         result = [numpy.zeros(shape) for shape in NetworkShape]
 
         return result
-    
+        
+    def load_weight(self, weight):
+        self.weights = [numpy.array(w) for w in weight]
+
+    def load_bias(self, bias):
+        self.biases = [numpy.array(b) for b in bias]
 
     def __init__(self, NetworkShape:list, ActivationFunction=sigmoid, LearningRate:float=0.3,
                     weights:numpy.array=None, biases:numpy.array=None):
 
-        assert len(NetworkShape) == 4, f"Depth of Neural Network has to be 4, Current Depth: {len(NetworkShape)}"
+        # assert len(NetworkShape) <= 4, f"Depth of Neural Network has to be 4, Current Depth: {len(NetworkShape)}"
 
 
         self.NetworkShape = NetworkShape
@@ -87,7 +89,6 @@ class network:
             self.raw_activ[i+1] = raw
             self.activ[i+1] = self.acfunc(raw)
 
-
     def backpropgation(self, target:list, activations=None, raw_activations=None):
         assert type(target) in network.InputType, "Wrong Type of Target"
         assert len(target) == self.NetworkShape[-1], f"Wrong Count of Input, need: {self.NetworkShape[-1]} taken: {len(target)}"
@@ -100,42 +101,15 @@ class network:
 
         
 
-        # # Csys.out(error, Csys.bcolors.WARNING)
-        # # Csys.out(self.acfunc(self.raw_activ[2], True), Csys.bcolors.WARNING)
+        delta = delta * self.acfunc(self.raw_activ[-1], True)
+        self.weights[-1] -= self.lrate * numpy.outer(delta, self.activ[-2])
+        self.biases[-1] -= self.lrate * delta
 
-        # # h2 -> out
-        # # delta_h2o = delta * self.acfunc(self.raw_activ[2], True)
-        # delta_h2o = numpy.sum(numpy.outer(delta, self.acfunc(self.raw_activ[2], True)), axis=0)
-
-        # # print(delta_h2o)
-
-        # self.weights[2] -= self.lrate * delta_h2o * self.activ[2]
-        # self.biases[2] -= self.lrate * numpy.sum(delta_h2o, axis=0)
-
-        # # h1 -> h2
-        # # delta_h1h2 = delta_h2o * self.weights[2] * self.acfunc(self.raw_activ[1], True)
-        # delta_h1h2 = numpy.outer(delta_h2o, self.acfunc(self.raw_activ[1], True)) * numpy.transpose(self.weights[2])
-
-        # # print(delta_h1h2)
-
-        # self.weights[1] -= self.lrate * delta_h1h2 * self.activ[1]
-        # self.biases[1] -= self.lrate * numpy.sum(delta_h1h2, axis=1)
-
-        # #in -> h1
-
-        # #delta_h1h2 = numpy.sum(delta_h1h2, axis=1)
-
-        # # print(delta_h1h2)
-
-        # delta_ih1 = numpy.reshape(numpy.sum(numpy.outer(delta_h1h2, self.acfunc(self.raw_activ[0], True)),axis=1), self.weights[1].shape) * self.weights[1]
-
-        # # print(delta_ih1)
-
-        # self.weights[0] -= self.lrate * numpy.sum(delta_ih1, axis=0) * self.activ[0]
-        # self.biases[0] -= self.lrate * numpy.sum(delta_ih1, axis=0)
-
-        # # print(delta_ih1)
-
+        for i in range(self.depth-2):
+            delta = numpy.sum(delta  * numpy.transpose(self.weights[-i-1])* self.acfunc(self.raw_activ[-i-2], True)[:,None], axis=1)
+            self.weights[-i-2] -= self.lrate * numpy.outer(delta, self.activ[-i-3])
+            self.biases[-i-2] -= self.lrate * delta
+        
 
     def train(self, datasets, MaxEpoch:int=None, MinError:float=None):
         error = 0
@@ -166,4 +140,3 @@ class network:
 
             errorTF = MinError and abs(error) > MinError
             LastError = error
-                
