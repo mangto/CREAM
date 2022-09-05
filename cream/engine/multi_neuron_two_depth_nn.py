@@ -29,7 +29,7 @@ class network:
     def init_weights(NetworkShape:list):
         # initialize weights with network shape
 
-        result = [[numpy.random.randn(NetworkShape[i])* 0.1 for j in range(shape)]
+        result = [[numpy.random.normal(size=NetworkShape[i])* 0.1 for j in range(shape)]
                     for i, shape in enumerate(NetworkShape[1:])] 
 
         return result
@@ -38,7 +38,7 @@ class network:
         # initialize biases with network shape
 
         # result = [numpy.random.randn(shape)*0.1 for shape in NetworkShape[1:]]
-        result = [numpy.random.randn(shape)*0.1 for shape in NetworkShape[1:]]
+        result = [numpy.zeros(shape) for shape in NetworkShape[1:]]
 
         return result
 
@@ -54,6 +54,10 @@ class network:
 
     def load_bias(self, bias):
         self.biases = [numpy.array(b) for b in bias]
+
+    def train_advice(self, text, epoch, error, lrate):
+        result = text.replace("/epoch/", str(epoch)).replace("/error/", str(error)).replace("/lrate/", str(lrate))
+        return result
 
     def __init__(self, NetworkShape:list, ActivationFunction=sigmoid, LearningRate:float=0.3,
                     weights:numpy.array=None, biases:numpy.array=None):
@@ -72,6 +76,7 @@ class network:
         self.raw_activ = network.reset_activation(NetworkShape)
 
         self.depth = len(NetworkShape)
+        self.start_nb = self.check()
 
     def forward(self, input:list):
         assert type(input) in network.InputType, "Wrong Type of Input"
@@ -95,22 +100,26 @@ class network:
         activations = activations if activations else self.activ
         raw_activations = raw_activations if raw_activations else self.raw_activ
 
-        error = activations[-1] - target
+        error = (activations[-1] - target)
         delta = error
 
         
-
+        # Csys.out(self.activ, Csys.bcolors.FAIL)
         delta = delta * self.acfunc(self.raw_activ[-1], True)
         self.weights[-1] -= self.lrate * numpy.outer(delta, self.activ[-2])
+        # print(self.lrate * numpy.outer(delta, self.activ[-2]))
         self.biases[-1] -= self.lrate * delta
 
-        
-        delta = numpy.sum(delta  * numpy.transpose(self.weights[-1])* self.acfunc(self.raw_activ[-2], True)[:,None], axis=1)
-        self.weights[-2] -= self.lrate * numpy.outer(delta, self.activ[-3])
-        self.biases[-2] -= self.lrate * delta
+        for i in range(self.depth - 2):
+            delta = delta  * numpy.transpose(self.weights[-i-1])* self.acfunc(self.raw_activ[-i-2], True)[:,None]
+            delta = numpy.sum(delta, axis=1) / len(delta[0])
+            self.weights[-i-2] -= self.lrate * numpy.outer(delta, self.activ[-i-3])
+            self.biases[-i-2] -= self.lrate * delta
         
 
-    def train(self, datasets, MaxEpoch:int=None, MinError:float=None):
+    def train(self, datasets, MaxEpoch:int=None, MinError:float=None,
+                lrate_change=0, Min_lrate:float=None, Max_lrate:float=None,
+                advice="/epoch/ | /error/"):
         error = 0
         epoch = 0
         LastError = 0 # to disadventage error of ReLU
@@ -118,6 +127,9 @@ class network:
 
         errorTF = MinError and error > MinError
         while ((MaxEpoch and epoch < MaxEpoch or (errorTF or not MinError)) or epoch == 0):
+            self.lrate += lrate_change
+            if (Min_lrate != None): self.lrate = max(self.lrate, Min_lrate)
+            if (Max_lrate != None): self.lrate = min(self.lrate, Max_lrate)
 
             error = 0
             epoch += 1
@@ -130,12 +142,19 @@ class network:
 
                 error += sum(Error(self.activ[-1],data[1],))
 
-            Csys.out(f"{epoch} | {error}", Csys.bcolors.OKCYAN)
-            if (abs(LastError) - abs(error) <= 0 ):
-                Csys.out(f"| network changed", Csys.bcolors.FAIL)
-                self.weights = network.init_weights(self.NetworkShape)
-                self.biases = network.init_biases(self.NetworkShape)
+            
+            Csys.out(self.train_advice(advice,epoch,error,self.lrate), Csys.bcolors.OKCYAN)
+            # if(LastError - error == 0):
+            #     Csys.out(self.check(), Csys.bcolors.OKBLUE)
+            #     Csys.out(self.activ,Csys.bcolors.OKGREEN)
+            #     Csys.stop()
+            # if (abs(LastError) - abs(error) <= 0 ):
+            #     Csys.out(f"| network changed", Csys.bcolors.FAIL)
+            #     self.weights = network.init_weights(self.NetworkShape)
+            #     self.biases = network.init_biases(self.NetworkShape)
 
 
             errorTF = MinError and abs(error) > MinError
             LastError = error
+
+        Csys.out(self.check(), Csys.bcolors.OKBLUE)

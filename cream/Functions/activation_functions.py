@@ -9,6 +9,16 @@ def sigmoid(value, Derivative=False):
         sig = sigmoid(value)
         return sig*(1-sig)
 
+def msigmoid(value, Derivative=False, Multiplier:float=2.0):
+    value = numpy.array(value)
+
+    if (not Derivative):
+        return sigmoid(value)*Multiplier-Multiplier/2
+
+    else:
+        sig = sigmoid(value)
+        return sig*(1-sig) * Multiplier
+
 def ReLU(value, Derivative=False):
     value = numpy.array(value)
 

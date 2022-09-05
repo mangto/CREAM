@@ -101,6 +101,6 @@ class snn:
         self.biases[1] -= self.l_rate * delta
 
         h = numpy.array(self.activ[1])
-        delta = numpy.sum(self.weights[1] * delta,axis=1)*h*(1-h)
+        delta = numpy.sum(self.weights[1] * delta,axis=1) *h*(1-h)* self.derive_activations[1]#*h*(1-h)
         self.weights[0] -= self.l_rate * numpy.transpose(numpy.reshape(delta, (self.NetworkShape[1], 1)) * self.activ[0])
         self.biases[0] -= self.l_rate * delta

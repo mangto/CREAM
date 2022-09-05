@@ -1,44 +1,43 @@
-import cream
+import cream, time, numpy
 
-network = cream.mntdnn.network([2,5,1])
-dataset = cream.datasets.XOR
+cream.csys.clear()
 
-error = 1
-laste = error
-i = 0
-while abs(error) > 0.1**8:
-    network.lrate = min(3, network.lrate+0.000025)
-    i+=1
-    error = 0
-    for data in dataset:
-        network.forward(data[0])
-        error += sum(cream.functions.Error(network.activ[-1],data[1]))
-        network.backpropgation(data[1])
+start = time.time()
+network = cream.mntdnn.network([784,16,10], ActivationFunction=cream.functions.msigmoid,LearningRate=1.0)
+dataset = cream.datasets.mnist_train
+test_dataset = cream.datasets.mnist_test
 
-    cream.Csys.out(f"epoch: {i} | {error}", cream.csys.bcolors.WARNING)
+accuracy = 1
+epoch = 0
+count = len((dataset[1][0]))
+test_count = len(dataset[1][0])
 
-    laste = error
+while accuracy < 99 or epoch==0:
+    epoch += 1
+    pb = cream.progress_bar.bar(60,title=f"epoch {epoch}", design="=")
+    pb.start()
 
-while True:
-    try:
-        input_ = input(" >>> ")
-        if (input_) == "weight":
-            print(network.weights)
+    for i in range(count):
+        pb.update((i+1)/count*100)
+        image, label = dataset[0][0][i], dataset[1][0][i]
 
-        elif (input_ == "bias"):
-            print(network.biases)
-        
-        else:
-            input_ = input_.split(" ")
-            if (len(input_) == network.NetworkShape[0]):
-                input_ = [eval(i) for i in input_]
-                go = True
-                for inp in input_:
-                    if type(inp) not in [int, float]:
-                        go = False
-                if (go):
-                    network.forward(input_)
-                    print(network.activ[-1])
+        network.forward(numpy.array(image)/255)
+        network.backpropgation(numpy.eye(10)[label])
 
-    except Exception as e:
-        cream.csys.out(e, cream.csys.bcolors.FAIL)
+    pb.end()
+
+    pb = cream.progress_bar.bar(60,title=f"test  {epoch}", design="=")
+    pb.start()
+    
+    accuracy = 0
+
+    for i in range(test_count):
+        pb.update((i+1)/test_count*100)
+        image, label = dataset[0][0][i], dataset[1][0][i]
+
+        network.forward(numpy.array(image)/255)
+        accuracy += numpy.argmax(network.activ[-1]) == numpy.argmax(label)
+    
+    accuracy = accuracy / test_count * 100
+    pb.end()
+    cream.csys.out(f"accuracy: {accuracy}%", cream.csys.bcolors.WARNING)
