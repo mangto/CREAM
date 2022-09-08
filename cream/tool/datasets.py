@@ -27,9 +27,3 @@ Half = [
     [[0.037314314544905136], [0.018657157272452568]], 
     [[0.0014902803684135768], [0.0007451401842067884]]
 ]
-
-from mnist import MNIST
-mndata = MNIST('cream\\tool\\mnist',gz=True)
-
-mnist_train = list(zip(mndata.load_training()))
-mnist_test = list(zip(mndata.load_testing()))

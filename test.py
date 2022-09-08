@@ -1,43 +1,22 @@
-import cream, time, numpy
+import cream, time, cv2
 
-cream.csys.clear()
+capture = cv2.VideoCapture(0)
+capture.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
+capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
 
-start = time.time()
-network = cream.mntdnn.network([784,16,10], ActivationFunction=cream.functions.msigmoid,LearningRate=1.0)
-dataset = cream.datasets.mnist_train
-test_dataset = cream.datasets.mnist_test
 
-accuracy = 1
-epoch = 0
-count = len((dataset[1][0]))
-test_count = len(dataset[1][0])
 
-while accuracy < 99 or epoch==0:
-    epoch += 1
-    pb = cream.progress_bar.bar(60,title=f"epoch {epoch}", design="=")
-    pb.start()
 
-    for i in range(count):
-        pb.update((i+1)/count*100)
-        image, label = dataset[0][0][i], dataset[1][0][i]
+while cv2.waitKey(33) < 0:
+    start = time.time()
+    ret, frame = capture.read()
+    frame = cv2.resize(frame, (200, 150))
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame = cream.convolutions(frame, cream.kernel.roberts_1, cream.kernel.roberts_2)
+    frame = cream.threshold(frame, 10)
+    frame = cv2.resize(frame, (640,480))
+    cv2.imshow("VideoFrame", frame)
+    print(time.time()-start)
 
-        network.forward(numpy.array(image)/255)
-        network.backpropgation(numpy.eye(10)[label])
-
-    pb.end()
-
-    pb = cream.progress_bar.bar(60,title=f"test  {epoch}", design="=")
-    pb.start()
-    
-    accuracy = 0
-
-    for i in range(test_count):
-        pb.update((i+1)/test_count*100)
-        image, label = dataset[0][0][i], dataset[1][0][i]
-
-        network.forward(numpy.array(image)/255)
-        accuracy += numpy.argmax(network.activ[-1]) == numpy.argmax(label)
-    
-    accuracy = accuracy / test_count * 100
-    pb.end()
-    cream.csys.out(f"accuracy: {accuracy}%", cream.csys.bcolors.WARNING)
+capture.release()
+cv2.destroyAllWindows()

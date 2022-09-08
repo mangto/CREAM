@@ -54,7 +54,7 @@ class snn:
 
 
 
-    def __init__(self, NetworkShape:list, function=sigmoid, LearningRate:float=0.3, InputFunction=Pad):
+    def __init__(self, NetworkShape:list, function=sigmoid, LearningRate:float=0.3):
 
         if (len(NetworkShape) != 3): raise ValueError("That's not 'snn' a.k.a. Simple Neural Network")
 
@@ -72,7 +72,6 @@ class snn:
         self.actives = self.reset_activation()
         self.dactivations = self.reset_activation()
 
-        self.inputfunction = InputFunction
 
 
     def forward(self, input:list):

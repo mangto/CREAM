@@ -11,7 +11,7 @@ class network:
     def __str__(self):
         result = f'''
         | type: Cream Neural Network
-        | Network Type: Normal
+        | Network Type: mntdnn
         | Network Shape: {self.NetworkShape}
         | Activation Function: {self.acfunc}
         | Learning Rate: {self.lrate}
