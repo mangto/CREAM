@@ -10,13 +10,15 @@ import cream.engine.SNN as snn
 import cream.engine.multi_neuron_two_depth_nn as mntdnn
 import cream.engine.convolutional_neural_network as cnn
 
-import cream.Functions as functions
 import cream.tool.Csys as csys
 import cream.tool.datasets as datasets
 import cream.tool.progress_bar as progress_bar
+
+import cream.Functions as functions
 import cream.Functions.cnn.kernel as kernel
 from cream.Functions.cnn.convolution import *
 import cream.Functions.cnn.pooling as pool
+from cream.Functions.cnn.cv2 import *
 from cream.Functions.cnn.padding import *
 
 import cream.visualizer

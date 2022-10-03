@@ -1,4 +1,4 @@
-import pygame, sys, os, math, win32api, json
+import pygame, sys, os, math, win32api, json, keyboard
 
 pygame.init()
 
@@ -14,6 +14,8 @@ path = os.path.split(os.path.abspath(__file__))[0]
 images = os.listdir(path + "\\images")
 selected_index = 0
 selected_image = pygame.image.load(path + "\\images\\" + images[selected_index]) if len(images) != 0 else pygame.Surface((720,405))
+save_enabled = True
+return_enabled = True
 
 def font(fontname, size):
     return pygame.font.Font(f"C:\\Windows\\Fonts\\{fontname}.TTF",size)
@@ -123,7 +125,10 @@ class system:
             triangle[2][0] += offsetx;  triangle[2][1] += offsety;
 
             return triangle
-
+        def draw_rect_alpha(surface, color, rect):
+            shape_surf = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape_surf, color, shape_surf.get_rect())
+            surface.blit(shape_surf, rect)
     class math:
         def sign(number:int):
             if number < 0: return -1
@@ -266,9 +271,9 @@ class system:
 
                 for name in self.borders[selected_index]:
                     for border in self.borders[selected_index][name]:
-                        pygame.draw.rect(window, class_selector.classes[name], (border[0][0], border[0][1], border[1][0] - border[0][0], border[1][1] - border[0][1]), 2)
-
-                pygame.draw.rect(window, class_selector.class_color[class_selector.selected_index], (self.new_box[0][0], self.new_box[0][1], self.new_box[1][0] - self.new_box[0][0], self.new_box[1][1] - self.new_box[0][1]), 2)
+                        pygame.draw.rect(window, class_selector.classes[name], (border[0][0], border[0][1], border[1][0] - border[0][0], border[1][1] - border[0][1]), 1)
+                pygame.draw.aaline(window, (0,0,0), self.new_box[0], self.new_box[1])
+                pygame.draw.rect(window, class_selector.class_color[class_selector.selected_index], (self.new_box[0][0], self.new_box[0][1], self.new_box[1][0] - self.new_box[0][0], self.new_box[1][1] - self.new_box[0][1]), 1)
 
     def display(events):
         if (len(events) > 0):
@@ -281,9 +286,10 @@ class system:
                 ui.draw(mx, my)
 
             pygame.display.update()
-        clock.tick(60)
+        clock.tick(144)
 
     def event(events):
+        global save_enabled, return_enabled
         for event in events:
             system.scroll = 0
 
@@ -303,9 +309,23 @@ class system:
                         border.history[selected_index] = border.history[selected_index][:-1]
                         border.borders[selected_index][name] = border.borders[selected_index][name][:-1]
                 
-                if event.key == pygame.K_s:
-                    json.dump(border.borders, open(path+"\\data\\dataset.json", 'w', encoding='utf8'), indent=4)
-                    json.dump(border.history, open(path+"\\data\\history.json", 'w', encoding='utf8'), indent=4)
+        if keyboard.is_pressed("ctrl+s") and save_enabled:
+            json.dump(border.borders, open(path+"\\data\\dataset.json", 'w', encoding='utf8'), indent=4)
+            json.dump(border.history, open(path+"\\data\\history.json", 'w', encoding='utf8'), indent=4)
+            save_enabled = False
+        if keyboard.is_pressed("s") != True:
+            save_enabled = True
+        if keyboard.is_pressed("ctrl+z") and return_enabled:
+            history = border.history[selected_index]
+
+            if (history != []):
+                name = history[-1][0]
+                border.history[selected_index] = border.history[selected_index][:-1]
+                border.borders[selected_index][name] = border.borders[selected_index][name][:-1]
+            return_enabled = False
+        if keyboard.is_pressed("z") != True:
+            return_enabled = True
+
 
 
 
