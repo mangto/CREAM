@@ -1,26 +1,23 @@
+import time
+__import__start__ = time.time()
 
-# Cream ( CoRy Ego Ai Model )
-# Version: 0.0.1
-# Developer: @mangto (github)
-# Contact: mangto0701@gmail.com
+# import section
 
-import cream.engine.cream_beta as cream
-import cream.engine.one_neuron_snn as onsnn
-import cream.engine.SNN as snn
-from cream.engine.integrated import network as network
-import cream.engine.convolutional_neural_network as cnn
+from cream.engine.deeplearning import network
 
-import cream.tool.Csys as csys
-import cream.tool.datasets as datasets
-import cream.tool.progress_bar as progress_bar
+import cream.functions as functions
 
-import cream.Functions as functions
-import cream.Functions.cnn.kernel as kernel
-from cream.Functions.cnn.convolution import *
-import cream.Functions.cnn.pooling as pool
-from cream.Functions.cnn.cv2 import *
-from cream.Functions.cnn.padding import *
+import cream.layer as layer
 
-import cream.visualizer
+import cream.tool.csys as csys
+import cream.tool.colors as colors
 
-print(f"CREAM Beta Version 0.1.0 by @mangto\nIf you find bugs or something to change, please contact 'mangto0701@gmail.com'")
+# result section
+
+__help__ = """ CREAM Version 1.0.0 by @mangto  (github)\nBug Report/Contact: 'mangto0701@gmail.com'"""
+__import__end__ = time.time()
+__import__estimated__ = __import__end__ - __import__start__
+
+print(__help__)
+print(f"{'Loading Estimated: ' + str(round(__import__estimated__, 3)) + 's':^42}")
+csys.division(42)
