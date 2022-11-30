@@ -16,6 +16,9 @@ class Dropout:
     def __call__(self, previous_activation:list | numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]:
         return (self.do(previous_activation))
 
+    def get_weights(self):
+        return self.weights
+
     def generate(self, previous_shape:int | tuple) -> None:
         
         self.size = previous_shape

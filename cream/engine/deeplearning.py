@@ -1,5 +1,6 @@
 import numpy
 import cream.tool.csys as csys
+import cream.functions as functions
 
 class network:
 
@@ -69,38 +70,46 @@ class network:
 
         return
 
-    def foreward(self, input:list|numpy.ndarray) -> list | numpy.ndarray:
+    def forward(self, input:list|numpy.ndarray) -> list | numpy.ndarray:
         '''
         feed network forward
 
         It saves raw-activation (not activation-functioned) and activation for backpropagation
         '''
+
+        assert self.compiled, "Network not compiled"
         assert type(input) in network.InputType, "Wrong Type of Input"
         assert len(input) == self.shape[0], f"Wrong Count of Input, need: {self.shape[0]} taken: {len(input)}"
 
-        try:
-            self.activ = network.reset_activation(self.shape)
-            self.raw_activ = network.reset_activation(self.shape)
-            self.activ[0] = input
-            self.raw_activ[0] = input
+        self.activ = network.reset_activation(self.shape)
+        self.raw_activ = network.reset_activation(self.shape)
+        self.activ[0] = input
+        self.raw_activ[0] = input
 
-            for i, layer in enumerate(self.layers):
-                raw, refined = layer.do(self.activ[i])
-                self.raw_activ[i+1] = raw
-                self.activ[i+1] = refined
+        for i, layer in enumerate(self.layers):
+            raw, refined = layer.do(self.activ[i])
+            self.raw_activ[i+1] = raw
+            self.activ[i+1] = refined
 
-            return self.activ[-1]
+        return self.activ[-1]
 
-        except Exception as e:
-            csys.out(f"Errored layer: {i}", csys.WARNING)
-            csys.error(e, "While Forwarding")
+    def backward(self, target:list|numpy.ndarray, activations=None, raw_activations=None) -> float:
 
-    def backward(self, target:list|numpy.ndarray, activations=None, raw_activations=None) -> None:
+        assert self.compiled, "Network not compiled"
+        assert type(target) in network.InputType, "Wrong Type of Target"
+        assert len(target) == self.shape[-1], f"Wrong Count of Target, need: {self.shape[-1]} taken: {len(target)}"
 
         activations = activations if activations else self.activ
         raw_activations = raw_activations if raw_activations else self.raw_activ
 
-        error = activations[-1] - target
-        delta = error
+        error = functions.Error(activations[-1], target)
+        derror = functions.Error(activations[-1], target, True)
+        delta = derror
 
-        return
+        for i in range(self.depth - 1):
+            index :int = - i - 1
+            args :dict = {'delta':delta, 'layer':self.layers, 'index':index, 'lrate':self.lrate, 
+                            'activation':self.activ, 'raw_activation':self.raw_activ}
+            delta = self.layers[index].backpropagation(args)
+
+        return error

@@ -9,7 +9,7 @@ class Dense:
         '''
 
         self.size : int = size
-        self.activation = activation if activation else Linear
+        self.activation = activation if activation else ReLU
         self.InputShape = InputShape
 
         self.weights:numpy.ndarray
@@ -46,10 +46,31 @@ class Dense:
         forward feed of dense layer
         '''
 
-        raw = numpy.sum(numpy.array(self.weights) * numpy.array(previous_activation), axis=1) + self.biases
-        refined = self.activation(raw)
-        return raw, refined
+        self.raw_activ = numpy.sum(numpy.array(self.weights) * numpy.array(previous_activation), axis=1) + self.biases
+        self.activ = self.activation(self.raw_activ)
+        return self.raw_activ, self.activ
 
-    def backpropagation(self, delta:list | numpy.ndarray) -> list | numpy.ndarray:
+    def get_weights(self):
+        return self.weights
 
-        return
+    def backpropagation(self, args:dict) -> list | numpy.ndarray:
+        delta :numpy.ndarray = args.get('delta')
+        layers :list = args.get('layer')
+        index :int = args.get('index')
+        lrate :int = args.get('lrate')
+        activation :list = args.get('activation')
+
+        if (index == -1):
+            # delta = delta * self.activation(self.raw_activ, True)
+            self.weights -= lrate * numpy.outer(delta, activation[index - 1])  * self.activation(self.raw_activ, True)
+            self.biases -= lrate * delta
+
+            return delta
+            
+        else:
+            delta = delta * numpy.transpose(layers[index + 1].get_weights()) * self.activation(self.raw_activ, True)[:,None]
+            delta = numpy.sum(delta, axis=1) / len(delta[0])
+            self.weights -= lrate * numpy.outer(delta, activation[index - 1])
+            self.biases -= lrate * delta
+
+            return delta
