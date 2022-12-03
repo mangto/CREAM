@@ -94,30 +94,32 @@ CREAM 내에 **기본적으로 내장된 모듈**입니다. 기능들로는 **di
 ### stop()
 
     cream.csys.stop(message:str="")
-코드를 잠시 중지할 때에 사용되며, 에러를 고칠 때, 혹은 결과 값을 확인할 때 사용하면 유용합니다.
+**코드를 잠시 중지**할 때에 사용되며, 에러를 고칠 때, 혹은 결과 값을 확인할 때 사용하면 유용합니다.
 
 #
 ### error()
 
     cream.csys.error(message:str="", name:str="Unknown")
-코드에 에러가 발생했을 때에 사용할 수 있습니다. 콘솔에 붉은 글씨로 출력이 됩니다. 에러가 출력된 이후에는 확인을 위해 코드가 중지되며(stop()과 동일하게) 이후 코드가 종료됩니다. 다음 예제를 확인하세요.
+**코드에 에러가 발생했을 때에 사용**할 수 있습니다. 콘솔에 붉은 글씨로 출력이 됩니다. 에러가 출력된 이후에는 확인을 위해 코드가 중지되며(stop()과 동일하게) 이후 코드가 종료됩니다. 다음 예제를 확인하세요.
 
     import cream
 
 	cream.csys.error("Description", "Error Name(Title)")
 	# Error Occured (Error Name(Title)): Description
 
+#
 ### clear()
 ```
 cream.csys.clear()
 ```
 콘솔의 글씨들을 모두 지웁니다.
 
+#
 ### out()
 ```
 cream.csys.out(message, color, bold:bool=False,underline:bool=False)
 ```
-기존의 무채색 print를 색을 넣거나, 두껍게 할 수 있습니다.
+기존의 무채색 print에 색을 넣거나, 두껍게 할 수 있습니다.
 
 # IDEA
 
