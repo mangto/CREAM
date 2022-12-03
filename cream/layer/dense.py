@@ -38,7 +38,7 @@ class Dense:
         generate weights and biases with numpy.random.normal
         '''
 
-        self.weights = numpy.random.normal(size=(self.size, previous_shape)) * 0.1
+        self.weights = numpy.random.uniform(-1.0, 1.0, (self.size, previous_shape)) * 0.01
         self.biases = numpy.zeros((self.size))
 
     def do(self, previous_activation:list | numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]:
@@ -62,7 +62,7 @@ class Dense:
 
         if (index == -1):
             # delta = delta * self.activation(self.raw_activ, True)
-            self.weights -= lrate * numpy.outer(delta, activation[index - 1])  * self.activation(self.raw_activ, True)
+            self.weights -= lrate * numpy.outer(delta, activation[index - 1])
             self.biases -= lrate * delta
 
             return delta

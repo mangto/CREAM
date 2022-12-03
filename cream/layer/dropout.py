@@ -1,4 +1,4 @@
-import numpy, copy
+import numpy, os
 
 class Dropout:
     def __init__(self, percentage:float):
@@ -34,3 +34,14 @@ class Dropout:
         result = previous_activation * self.weights
 
         return previous_activation, result
+
+    def backpropagation(self, args:dict) -> list | numpy.ndarray:
+        delta = args.get('delta')
+        # delta *= self.weights
+
+        print(delta)
+        print(self.weights)
+
+        os.system("pause")
+
+        return delta
