@@ -1,22 +1,28 @@
-import cream, time, cv2
+import cream, random, numpy
 
-capture = cv2.VideoCapture(0)
-capture.set(cv2.CAP_PROP_FRAME_WIDTH, 400)
-capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
+dataset = cream.datasets.XOR
+network = cream.network()
+network.add(cream.layer.Dense(5, cream.functions.ReLU, InputShape=2))
+network.add(cream.layer.Dense(1, cream.functions.ReLU))
+network.compile()
 
+print(dataset)
+error = 1
+epoch = 0
+while (error > 0.1**15 and epoch <= 10000):
+    error = 0
+    for data in dataset:
+        network.forward(data[0])
+        network.backward(data[1])
+        error += sum(cream.functions.Error(network.activ[-1], data[1]))
 
+    cream.csys.out(f"epoch: {epoch:>6} | error: {error}", cream.csys.OKCYAN)
+    epoch += 1
+    
+    if (numpy.isnan(error)):
+        cream.csys.stop()
 
-
-while cv2.waitKey(33) < 0:
-    start = time.time()
-    ret, frame = capture.read()
-    frame = cv2.resize(frame, (200, 150))
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    frame = cream.convolutions(frame, cream.kernel.roberts_1, cream.kernel.roberts_2)
-    frame = cream.threshold(frame, 10)
-    frame = cv2.resize(frame, (640,480))
-    cv2.imshow("VideoFrame", frame)
-    print(time.time()-start)
-
-capture.release()
-cv2.destroyAllWindows()
+for layer in network.layers:
+    cream.csys.out(layer.weights, cream.csys.OKBLUE)
+    cream.csys.out(layer.biases, cream.csys.OKGREEN)
+cream.csys.stop("yo..")
