@@ -1,7 +1,7 @@
 # CREAM (CoRy Enact Ai Model)
-<center>
-<img src="./CREAM.png" width="250px" height="250px" title="Github_Logo"/>
-</center>
+<div align="center">
+	<img src="./CREAM.png" width="250px" height="250px" title="Github_Logo"/>
+</div>
 CREAM은 [**텐서플로우(tensorflow)**](https://github.com/tensorflow/tensorflow) 형태로 제작된 AI학습 모델입니다. 텐서플로우처럼 완벽하진 않지만, 대부분을 학습할 수 있습니다.
 
 ## Install
