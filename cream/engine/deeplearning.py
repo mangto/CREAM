@@ -93,7 +93,13 @@ class network:
 
         return self.activ[-1]
 
+    def __call__(self, input:list|numpy.ndarray) -> list | numpy.ndarray:
+        return self.forward(input)
+
     def backward(self, target:list|numpy.ndarray, activations=None, raw_activations=None) -> float:
+        '''
+        backpropagation of network
+        '''
 
         assert self.compiled, "Network not compiled"
         assert type(target) in network.InputType, "Wrong Type of Target"
@@ -113,3 +119,59 @@ class network:
             delta = self.layers[index].backpropagation(args)
 
         return error
+
+    def fit(self, inputs: list | numpy.ndarray, targets: list | numpy.ndarray,
+            MinError:int=None, MaxEpoch:int=None,
+            ForwardFunction=None, LearningFunction=None):
+
+        '''
+        fit network by repeating forwarding and backwarding
+        '''
+
+        assert (icount := len(inputs)) == (tcount := len(targets)), "Different count of inputs and targets"
+
+        ForwardFunction = ForwardFunction if ForwardFunction else self.forward
+        LearningFunction = LearningFunction if LearningFunction else self.backward
+
+        error = None
+        epoch = 0
+
+        def is_valid(error, epoch, MinError=None, MaxEpoch=None):
+            '''
+            check if network have to continue learning
+            '''
+
+            MinError = MinError if MinError or MinError == 0 else None
+            MaxEpoch = MaxEpoch if MaxEpoch or MaxEpoch == 0 else None
+            if (MinError == None and MaxEpoch == None): csys.error('Both MinError and MaxEpoch are None', 'Infinite loop')
+            if (error == None): return True
+
+            if (MinError != None and MaxEpoch == None):
+                if (error > MinError): return True
+                return False
+            elif (MinError == None and MaxEpoch != None):
+                if (epoch < MaxEpoch): return True
+                return False
+            else:
+                if (epoch >= MaxEpoch): return False
+                if (error <= MinError): return False
+                return True
+
+        valid = is_valid(error, epoch, MinError, MaxEpoch)
+
+        while valid:
+            error = 0
+
+            for input, target in zip(inputs, targets):
+                ForwardFunction(input)
+                LearningFunction(target)
+
+                error += numpy.sum(functions.Error(self.activ[-1], target))
+            
+
+            epoch += 1
+            valid = is_valid(error, epoch, MinError, MaxEpoch)
+
+            print(error)
+
+        return

@@ -14,9 +14,12 @@ import cream.tool.colors as colors
 import cream.tool.datasets as datasets
 import cream.tool.progress_bar as progress_bar
 
+import cream.generator as generator
+
 # result section
 
-__help__ = """ CREAM Version 1.0.0 by @mangto  (github)\nBug Report/Contact: 'mangto0701@gmail.com'"""
+__all__ = ['network', 'functions', 'layer', 'csys', 'colors', 'datasets', 'progress_bar', 'generator']
+__help__ = """ CREAM Version 1.1.0 by @mangto  (github)\nBug Report/Contact: 'mangto0701@gmail.com'"""
 __import__end__ = time.time()
 __import__estimated__ = __import__end__ - __import__start__
 

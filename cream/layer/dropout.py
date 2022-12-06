@@ -37,11 +37,6 @@ class Dropout:
 
     def backpropagation(self, args:dict) -> list | numpy.ndarray:
         delta = args.get('delta')
-        # delta *= self.weights
-
-        print(delta)
-        print(self.weights)
-
-        os.system("pause")
+        delta *= self.weights
 
         return delta
