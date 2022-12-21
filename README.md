@@ -48,6 +48,14 @@ Dense 레이어는 가장 기본적인 네트워크 형태입니다. 뉴런들�
 
 network.compile()은 네트워크를 완성시켜주는 것으로, **네트워크 사용을 위해서는 꼭 필요**합니다
 
+    network = cream.generator.sequence([
+        cream.layer.Dense(5, cream.functions.ReLU, InputShape=2),
+        cream.layer.Dense(1, cream.functions.ReLU)
+    ])
+위처럼 generator의 sequence 함수로도 네트워크를 형성할 수 있습니다. 이의 경우에는 compile이 자동으로 되기 때문에, 따로 해줄 필요가 없습니다.
+
+    network = cream.generator.shape([2, 5, 1], cream.functions.ReLU)
+네트워킈 레이어로 dense만 쓸 경우에는 위처럼 generator의 shape 함수를 통해 네트워크를 간단하게 만들 수 있습니다. 이 경우 또한 compile을 해 줄 필요가 없습니다.
 ### 데이터셋 불러오기 (Load dataset)
 CREAM 안에는 몇가지 예제들이 있습니다. 그중 **XOR 데이터셋**을 불러오도록 하겠습니다.
 
@@ -69,6 +77,9 @@ CREAM 안에는 몇가지 예제들이 있습니다. 그중 **XOR 데이터셋**
             MinError:int=None, MaxEpoch:int=None,
             ForwardFunction=None, LearningFunction=None,
             advise=True)
+
+위와 같이 **네트워크의 forward와 backpropagation을 반복하며 학습**시킬 수 있습니다.
+CREAM에는 csys라는 모듈이 포함되어 있스며, 학습에 필요한 기능이 포함되어 있습니다. 이에 대해 밑에서 다시 설명하도록 하겠습니다.
 - inputs: 데이터셋의 인풋값을 의미합니다
 - targets: 네트워크의 forward 결과로 나와야 하는 결과를 말합니다
 - MinError: 모델이 목표로 하는 오차값입니다
@@ -78,9 +89,6 @@ CREAM 안에는 몇가지 예제들이 있습니다. 그중 **XOR 데이터셋**
 - LearningFunction: 역전파 함수를 말합니다
   * 기본값: network.backward()
 - advise: 학습 도중 현재의 오차값을 출력해줍니다
-
-위와 같이 **네트워크의 forward와 backpropagation을 반복하며 학습**시킬 수 있습니다.
-CREAM에는 csys라는 모듈이 포함되어 있스며, 학습에 필요한 기능이 포함되어 있습니다. 이에 대해 밑에서 다시 설명하도록 하겠습니다.
 
 ## CSYS
 CREAM 내에 **기본적으로 내장된 모듈**입니다. 기능들로는 **division, stop, error, clear, out**이 있습니다.
