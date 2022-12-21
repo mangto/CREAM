@@ -73,9 +73,9 @@ CREAM 안에는 몇가지 예제들이 있습니다. 그중 **XOR 데이터셋**
 - targets: 네트워크의 forward 결과로 나와야 하는 결과를 말합니다
 - MinError: 모델이 목표로 하는 오차값입니다
 - MaxEpoch: 최대 학습할 횟수를 말합니다
-- ForwardFunction: 정방향 진행(입력으로 결과 도출)을 해주는 함수를 말합니다\
+- ForwardFunction: 정방향 진행(입력으로 결과 도출)을 해주는 함수를 말합니다
   * 기본값: network.forward()
-- LearningFunction: 역전파 함수를 말합니다\
+- LearningFunction: 역전파 함수를 말합니다
   * 기본값: network.backward()
 - advise: 학습 도중 현재의 오차값을 출력해줍니다
 
