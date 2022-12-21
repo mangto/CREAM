@@ -1,4 +1,3 @@
-
 # CREAM (CoRy Enact Ai Model)
 <div align="center">
 <img src="./CREAM.png" width="300px" height="300px" title="Github_Logo"/>
@@ -66,18 +65,19 @@ CREAM 안에는 몇가지 예제들이 있습니다. 그중 **XOR 데이터셋**
 
 ### 학습시키기 (Training)
 
-    error  =  1
-	epoch  =  0
-
-	while (error  >  0.1**15  and  epoch  <=  10000):
-		error  =  0
-		for  data  in  dataset:
-			network.forward(data[0])
-			network.backward(data[1])
-			error  +=  sum(cream.functions.Error(network.activ[-1], data[1]))
-		cream.csys.out(f"epoch: {epoch:>6} | error: {error}", cream.csys.OKCYAN)
-		epoch  +=  1
-	cream.csys.stop()
+    network.fit(inputs: list | numpy.ndarray, targets: list | numpy.ndarray,
+            MinError:int=None, MaxEpoch:int=None,
+            ForwardFunction=None, LearningFunction=None,
+            advise=True)
+- inputs: 데이터셋의 인풋값을 의미합니다
+- targets: 네트워크의 forward 결과로 나와야 하는 결과를 말합니다
+- MinError: 모델이 목표로 하는 오차값입니다
+- MaxEpoch: 최대 학습할 횟수를 말합니다
+- ForwardFunction: 정방향 진행(입력으로 결과 도출)을 해주는 함수를 말합니다\
+  * 기본값: network.forward()
+- LearningFunction: 역전파 함수를 말합니다\
+  * 기본값: network.backward()
+- advise: 학습 도중 현재의 오차값을 출력해줍니다
 
 위와 같이 **네트워크의 forward와 backpropagation을 반복하며 학습**시킬 수 있습니다.
 CREAM에는 csys라는 모듈이 포함되어 있스며, 학습에 필요한 기능이 포함되어 있습니다. 이에 대해 밑에서 다시 설명하도록 하겠습니다.
