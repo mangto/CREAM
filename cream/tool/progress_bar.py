@@ -24,7 +24,7 @@ class bar:
         self.percentage = amount
 
         self.n += 1
-        if (self.n == 10):
+        if (self.n == 1):
             sys.stdout.write('\r')
             sys.stdout.write(f"{self.title} [%-{self.width-1}s] %f%% estimated: %fs" % (self.design*self.count, self.percentage, time.time()-self.time))
             sys.stdout.flush()
@@ -37,4 +37,5 @@ class bar:
                 self.end()
 
     def end(self):
+        # self.update(100)
         sys.stdout.write("\n")

@@ -118,11 +118,12 @@ class network:
                             'activation':self.activ, 'raw_activation':self.raw_activ}
             delta = self.layers[index].backpropagation(args)
 
-        return error
+        return error 
 
     def fit(self, inputs: list | numpy.ndarray, targets: list | numpy.ndarray,
             MinError:int=None, MaxEpoch:int=None,
-            ForwardFunction=None, LearningFunction=None):
+            ForwardFunction=None, LearningFunction=None,
+            advise=True):
 
         '''
         fit network by repeating forwarding and backwarding
@@ -171,7 +172,6 @@ class network:
 
             epoch += 1
             valid = is_valid(error, epoch, MinError, MaxEpoch)
-
-            print(error)
+            if (advise): print(f"{epoch=:>6} | {error=}")
 
         return
