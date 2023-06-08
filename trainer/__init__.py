@@ -1,1 +1,0 @@
-from cream.trainer.base import trainer as base
