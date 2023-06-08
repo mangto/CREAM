@@ -19,7 +19,7 @@ class Dropout:
     def get_weights(self):
         return self.weights
 
-    def generate(self, previous_shape:int | tuple) -> None:
+    def generate(self, previous_shape:int | tuple, **settings) -> None:
         
         self.size = previous_shape
         self.weights = numpy.ones((self.size))

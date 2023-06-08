@@ -53,3 +53,11 @@ def tanh(value, Derivative = False):
 def softmax(value, Derivative = False):
     if (Derivative == False): e_x = numpy.exp(value); return e_x / e_x.sum()
     else: s = softmax(value).reshape(-1,1); return numpy.diag(numpy.diagflat(s) - numpy.dot(s, s.T))
+
+def softmax2d(value, Derivative = False):
+    if (Derivative == False):
+        e_x = numpy.exp(value)
+        return e_x / numpy.reshape(numpy.sum(e_x, axis=1), (-1, 1))
+    
+def cross_entropy(z, y):
+    return - numpy.sum(numpy.log(z) * y)

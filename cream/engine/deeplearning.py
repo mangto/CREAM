@@ -116,7 +116,8 @@ class network:
             index :int = - i - 1
             args :dict = {'delta':delta, 'layer':self.layers, 'index':index, 'lrate':self.lrate, 
                             'activation':self.activ, 'raw_activation':self.raw_activ}
-            delta = self.layers[index].backpropagation(args)
+            returned :dict = self.layers[index].backpropagation(args)
+            delta = returned.get('delta', delta)
 
         return error 
 

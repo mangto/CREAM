@@ -19,9 +19,22 @@ def error(message:str="", name:str="Unknown"):
 def clear():
     os.system("cls")
     
-def out(message, color, bold:bool=False,underline:bool=False):
+def out(message, color='', bold:bool=False,underline:bool=False):
     special = ''
     if (bold == True): special += BOLD
     if (underline == True): special += UNDERLINE
 
     print(f"{color}{special}{message}{ENDC}")
+
+def warn(message, check=True):
+    out(f"Warning: " + str(message), FAIL, True)
+    out(f"Do you really do this process? (y/n)", WARNING)
+    
+    possible = ['y', 'n']
+    response = str(input("[y/n] >>> ")).lower()
+    while response not in possible:
+        out("Unknown response. Please enter 'y' for yes, 'n' for no", FAIL)
+        response = str(input(" [y/n] >>> ")).lower()
+
+    if (response == 'y'): return
+    else: os.system("pause"); sys.exit()

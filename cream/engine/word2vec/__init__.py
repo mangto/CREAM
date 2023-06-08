@@ -1,0 +1,1 @@
+from cream.engine.word2vec.word2vec import *
