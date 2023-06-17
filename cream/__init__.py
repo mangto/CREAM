@@ -5,6 +5,7 @@ __import__start__ = time.time()
 
 from cream.engine.deeplearning import network
 import cream.engine.word2vec as word2vec
+from cream.engine.ahocorasick import ahocorasick
 
 import cream.functions as functions
 
@@ -23,7 +24,7 @@ import cream.trainer as trainer
 # result section
 __version__ = '1.1.0'
 __all__ = [
-    'network', 'word2vec',
+    'network', 'word2vec', 'ahocorasick',
     'functions', 'generator',
     'layer', 'csys', 'colors', 'datasets', 'progress_bar', 
     'trainer'
