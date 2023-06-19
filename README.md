@@ -38,7 +38,7 @@ XOR Algorithm은 XOR 교체 알고리즘이라고 불립니다. 각 입력에 �
 	# cream.layer.Dense(size:int, activation=None, InputShape:int=None)
 	
     network.add(cream.layer.Dense(5, cream.functions.ReLU, InputShape=2))
-    network.add(cream.layer.Dense(1, crean,functions.ReLU))
+    network.add(cream.layer.Dense(1, cream.functions.ReLU))
     network.compile()
 Dense 레이어는 가장 기본적인 네트워크 형태입니다. 뉴런들의 집합을 의미합니다. **network.add()을 통해 레이어를 추가**할 수 있으며, 가장 **첫 레이어에는 인풋 쉐입**을 넣어주어야 합니다.
 
