@@ -4,6 +4,7 @@
 </div>
 
 CREAM은 [**텐서플로우(tensorflow)**](https://github.com/tensorflow/tensorflow) 형태로 제작된 AI학습 모델입니다. 텐서플로우처럼 완벽하진 않지만, 대부분을 학습할 수 있습니다.
+현생에 치어사는 고딩(중딩때부터 시작해서)이 만들었기에 성능이 별로일 수 있습니다
 
 ## Install
 ```
