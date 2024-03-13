@@ -1,4 +1,4 @@
-# CREAM (CoRy Enact Ai Model)
+# CREAM
 <div align="center">
 <img src="./CREAM.png" width="300px" height="300px" title="Github_Logo"/>
 </div>
